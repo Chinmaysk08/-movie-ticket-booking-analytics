@@ -108,11 +108,14 @@ their inputs.
 
 - **Sample, not a census.** 10,000 bookings is a sample. Only shows with at
   least one sampled booking appear, so occupancy describes those shows, not
-  the full annual utilisation of each multiplex.
+  the full annual utilisation of each multiplex. The generator designs 16
+  multiplexes × 5 screens = 80 screens; the sample contains **79**, because
+  Screen 3 at Deccan Mall Cinemas - Baner has no sampled booking. This is a
+  property of the sample, not a claim that the multiplex has four screens.
 - **Occupancy is slightly conservative.** The generator simulated 290 complete
   shows and then randomly kept 10,000 of their ~10,400 bookings. Because a
   show's unsampled seats are invisible, measured occupancy is marginally below
-  the designed occupancy (40.2% vs 40.9% in the generated base).
+  the designed occupancy (40.18% vs 40.9% in the generated base).
 - **Illustrative city mix.** City volumes are generated from a prior that
   roughly reflects multiplex market size, then sampled. They are not a market
   estimate.

@@ -1,30 +1,129 @@
--- DAX Measures for Power BI
+-- ============================================================================
+-- DAX measures -- Movie Ticket Booking Analytics, dataset v2
+-- ============================================================================
+-- Model:
+--   fact_bookings  *:1  dim_customer
+--   fact_bookings  *:1  dim_show
+--   fact_bookings  *:1  dim_date
+--   fact_bookings  *:1  dim_payment
+--   dim_show       *:1  dim_movie
+--   dim_show       *:1  dim_theatre
+--
+-- This is a star with two snowflaked dimensions: movie and theatre hang off
+-- dim_show, because both are attributes of a show rather than of a booking.
+--
+-- Mark dim_date as the date table (Table view > Mark as date table >
+-- dim_date[full_date]) before using the time-intelligence measures.
+--
+-- Every revenue/ticket measure filters booking_status = 'Confirmed'.
+-- Cancelled bookings exist in the fact table but released their seats.
+-- ============================================================================
 
--- KPI Measures
-Total Revenue = CALCULATE(SUM(fact_bookings[total_amount]), fact_bookings[booking_status]="Confirmed")
+
+-- ---------------------------------------------------------------------------
+-- Core KPIs
+-- ---------------------------------------------------------------------------
+Total Revenue =
+CALCULATE(
+    SUM(fact_bookings[total_amount]),
+    fact_bookings[booking_status] = "Confirmed"
+)
 
 Total Bookings = COUNTROWS(fact_bookings)
 
-Confirmed Bookings = CALCULATE(COUNTROWS(fact_bookings), fact_bookings[booking_status]="Confirmed")
+Confirmed Bookings =
+CALCULATE(
+    COUNTROWS(fact_bookings),
+    fact_bookings[booking_status] = "Confirmed"
+)
 
-Cancelled Bookings = CALCULATE(COUNTROWS(fact_bookings), fact_bookings[booking_status]="Cancelled")
+Cancelled Bookings =
+CALCULATE(
+    COUNTROWS(fact_bookings),
+    fact_bookings[booking_status] = "Cancelled"
+)
 
-Tickets Sold = CALCULATE(SUM(fact_bookings[seats]), fact_bookings[booking_status]="Confirmed")
+Tickets Sold =
+CALCULATE(
+    SUM(fact_bookings[seats]),
+    fact_bookings[booking_status] = "Confirmed"
+)
 
-Avg Ticket Price = DIVIDE([Tickets Sold], [Confirmed Bookings], 0)
+Average Ticket Price = DIVIDE([Total Revenue], [Tickets Sold])
 
-Avg Booking Value = DIVIDE([Total Revenue], [Confirmed Bookings], 0)
+Average Booking Value = DIVIDE([Total Revenue], [Confirmed Bookings])
 
-Cancellation Rate % = DIVIDE([Cancelled Bookings], [Total Bookings], 0) * 100
+Cancellation Rate % = DIVIDE([Cancelled Bookings], [Total Bookings]) * 100
 
-Total Discount = CALCULATE(SUM(fact_bookings[discount_amount]), fact_bookings[booking_status]="Confirmed")
+Total Discount =
+CALCULATE(
+    SUM(fact_bookings[discount_amount]),
+    fact_bookings[booking_status] = "Confirmed"
+)
 
--- Time Intelligence
-Revenue YTD = CALCULATE([Total Revenue], DATESYTD(dim_date[full_date]))
+Discount % of Gross =
+DIVIDE(
+    [Total Discount],
+    CALCULATE(
+        SUMX(fact_bookings, fact_bookings[ticket_price] * fact_bookings[seats]),
+        fact_bookings[booking_status] = "Confirmed"
+    )
+) * 100
 
-Revenue MTD = CALCULATE([Total Revenue], DATESMTD(dim_date[full_date]))
 
--- Dynamic Measures
-Revenue by City = CALCULATE([Total Revenue], ALLEXCEPT(dim_customer, dim_customer[city]))
+-- ---------------------------------------------------------------------------
+-- Occupancy
+-- ---------------------------------------------------------------------------
+-- Average of show-level occupancy, not average occupancy per booking.
+-- Averaging per booking would weight busy shows more heavily.
+Mean Show Occupancy % =
+AVERAGEX(
+    VALUES(dim_show[show_key]),
+    DIVIDE(
+        CALCULATE([Tickets Sold]),
+        CALCULATE(MAX(dim_show[seats_capacity]))
+    )
+) * 100
 
-Occupancy Indicator = IF([Tickets Sold] > 1000, "High", IF([Tickets Sold] > 500, "Medium", "Low"))
+Shows = DISTINCTCOUNT(fact_bookings[show_key])
+
+Screens = DISTINCTCOUNT(dim_show[screen])   -- per theatre when sliced by theatre
+
+
+-- ---------------------------------------------------------------------------
+-- Customer measures
+-- ---------------------------------------------------------------------------
+Customers = DISTINCTCOUNT(fact_bookings[customer_key])
+
+Revenue per Customer = DIVIDE([Total Revenue], [Customers])
+
+Loyal Revenue Share % =
+DIVIDE(
+    CALCULATE([Total Revenue], dim_customer[customer_type] = "Loyal"),
+    [Total Revenue]
+) * 100
+
+
+-- ---------------------------------------------------------------------------
+-- Time intelligence (requires dim_date marked as a date table)
+-- ---------------------------------------------------------------------------
+Revenue MTD = TOTALMTD([Total Revenue], dim_date[full_date])
+
+Revenue YTD = TOTALYTD([Total Revenue], dim_date[full_date])
+
+Revenue MoM % =
+VAR CurrentMonth = [Total Revenue]
+VAR PreviousMonth =
+    CALCULATE([Total Revenue], DATEADD(dim_date[full_date], -1, MONTH))
+RETURN
+    DIVIDE(CurrentMonth - PreviousMonth, PreviousMonth) * 100
+
+
+-- ---------------------------------------------------------------------------
+-- Reconciliation anchors (should match reports/sql_results.md)
+-- ---------------------------------------------------------------------------
+-- Total Revenue            = 10,787,567
+-- Tickets Sold             = 22,690
+-- Confirmed Bookings       = 9,311
+-- Cancellation Rate %      = 6.89
+-- Mean Show Occupancy %    = 40.18

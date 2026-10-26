@@ -1,10 +1,9 @@
 # Movie Ticket Booking Analytics Project
 
-> ⚠️ **Status: work in progress.** Dataset v2 is generated and documented in
-> `docs/data_dictionary.md`, `notebooks/01_data_understanding.ipynb` and
-> `reports/data_quality_report.md`; a verified v2 snapshot appears below.
-> The pipeline sections still describe the v1 scripts, which are being
-> rewritten in Phase 3. The full 12-section README rewrite happens in Phase 8.
+> ⚠️ **Status: work in progress.** Dataset v2 is generated, cleaned, loaded
+> into Oracle, and analysed with 25 validated SQL queries. A verified snapshot
+> and the current pipeline appear below. The full 12-section README rewrite
+> happens in Phase 8, after the EDA and the Power BI report.
 
 ## Overview
 End-to-end analytics project using Python, Pandas, Oracle SQL (26ai Free), and Power BI/Streamlit for analyzing movie ticket bookings for an Indian cinema chain.
@@ -22,18 +21,21 @@ movie-ticket-booking-analytics/
 ├── data/
 │   ├── raw/bookings_raw.csv      # 10,300 rows (with injected defects)
 │   ├── clean/bookings_clean.csv  # 10,000 clean rows
-│   └── powerbi/                  # Star schema CSVs for Power BI
+│   └── powerbi/                  # Regenerated from Oracle (git-ignored)
 ├── src/
-│   ├── 00_generate_data.py       # Generate synthetic data
-│   ├── 01_clean_data.py          # Data cleaning & standardization
-│   ├── 03_oracle_load.py         # Load to Oracle star schema
-│   └── 05_export_powerbi.py      # Export for Power BI
+│   ├── 00_generate_data.py       # Generate synthetic data (seed 42)
+│   ├── 01_clean_data.py          # Cleaning + 19 validation checks
+│   ├── 02_create_schema.py       # Drop & create the Oracle schema
+│   ├── 03_oracle_load.py         # Load + 18 reconciliation checks
+│   ├── 04_run_sql_queries.py     # Execute 25 queries, write results
+│   └── 05_export_powerbi.py      # Export the star schema to CSV
 ├── sql/
-│   ├── 01_schema.sql             # Star schema DDL
-│   └── 03_analysis_queries.sql   # 20 business analysis queries
-├── dashboard/app.py              # Streamlit dashboard
+│   ├── 01_schema.sql             # 7 tables, 4 views, 105 constraints
+│   └── 03_analysis_queries.sql   # 25 business analysis queries
+├── dashboard/app.py              # Streamlit fallback (4 tabs)
 ├── powerbi/                      # Build guide & DAX measures
-└── reports/                      # Cleaning log & findings
+├── notebooks/                    # Understanding & cleaning notebooks
+└── reports/                      # Quality, load, SQL and cleaning evidence
 ```
 
 ## Setup Instructions
@@ -53,23 +55,34 @@ Oracle 26ai Free is installed at `D:\app\admin\product\26ai\`
 - User: `cinema` (password is **not** stored here — see `.env`)
 
 ### 3. Run Pipeline
-```bash
-# Generate data
-python src/00_generate_data.py
 
-# Clean data
-python src/01_clean_data.py
+Run in this order. Each step refuses to continue if its validation fails.
 
-# Create schema in Oracle (run via Python or SQLcl)
-python -c "..." # schema creation done
+```powershell
+cd D:\chinmay\movie-ticket-booking-analytics
+$env:PYTHONPATH = "D:\chinmay\movie-ticket-booking-analytics\src"
 
-# Load to Oracle
-$env:PYTHONPATH='src'
-python src/03_oracle_load.py
+# 1. Generate the raw file (seed 42, reproducible)
+D:\venvs\cinema\Scripts\python.exe src\00_generate_data.py
 
-# Export for Power BI
-python src/05_export_powerbi.py
+# 2. Clean it (writes data/clean/bookings_clean.csv + reports/cleaning_log.txt)
+D:\venvs\cinema\Scripts\python.exe src\01_clean_data.py
+
+# 3. Rebuild the Oracle schema (drops existing tables, creates 7 tables + 4 views)
+D:\venvs\cinema\Scripts\python.exe src\02_create_schema.py
+
+# 4. Load and reconcile to INR 10,787,567
+D:\venvs\cinema\Scripts\python.exe src\03_oracle_load.py
+
+# 5. Execute all 25 queries and write reports/sql_results.md
+D:\venvs\cinema\Scripts\python.exe src\04_run_sql_queries.py
+
+# 6. Export the star schema to data/powerbi/*.csv
+D:\venvs\cinema\Scripts\python.exe src\05_export_powerbi.py
 ```
+
+Step 3 **drops and recreates** the seven tables. It is the reset step; do not
+run it casually once the database holds something you want to keep.
 
 ### 4. Run Dashboard
 Easiest way (starts in background and opens the browser):
@@ -98,19 +111,30 @@ baseline for every later layer:
 - **Confirmed revenue:** ₹10,787,567 · **Confirmed tickets:** 22,690
 - **Average confirmed booking value:** ₹1,158.58
 - **Cancellation rate:** 6.89%
-- **Mean show occupancy:** 40.2% across 290 shows
+- **Mean show occupancy:** 40.18% across 290 shows
 - **Customers:** 3,480 · **Loyal segment:** 25.4% of customers, 53.3% of bookings
-- **Network:** 8 cities · 16 multiplexes · 80 screens · 22 fictional movies
+- **Network:** 8 cities · 16 multiplexes · 79 screens in the sample (80 designed) · 22 fictional movies
+
+The same totals are reproduced by Pandas, by the Oracle load, by all 25 SQL
+queries, and by the Streamlit dashboard. See `reports/oracle_load_report.md`
+and `reports/sql_results.md`.
 
 ## Business Recommendations
 
-Not written yet — deliberately. Recommendations will be derived from the EDA
-and SQL results in Phases 4–5, not guessed in advance.
+Not written yet — deliberately. The SQL results are available in
+`reports/sql_results.md`; recommendations will be derived from the EDA
+(Phase 4) and then written up, not guessed in advance.
 
 ## Oracle SQL Highlights
-- Star schema with fact & dimension tables
-- Window functions (RANK, LAG, SUM OVER)
-- CTEs for complex aggregations
-- PIVOT-style CASE aggregations
-- Date/time functions (TO_CHAR, EXTRACT)
-- NULL handling with NVL
+
+- 7-table model at booking grain, with `DIM_MOVIE` and `DIM_THEATRE`
+  snowflaked off `DIM_SHOW`
+- 105 enabled constraints, including a CHECK that enforces
+  `total_amount = ticket_price × seats + fee − discount`
+- 4 views: show performance, booking detail, monthly revenue, movie performance
+- Window functions (`RANK`, `LAG`, `SUM OVER`, `NTILE`, `CORR OVER`)
+- CTEs for multi-step aggregations
+- PIVOT-style `CASE` aggregation
+- `EXPLAIN PLAN` example in `reports/sql_results.md`
+- 25 queries, with 20 independent revenue slices all reconciling to
+  ₹10,787,567

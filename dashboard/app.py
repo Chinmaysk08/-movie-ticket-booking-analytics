@@ -1,167 +1,405 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
+"""
+Movie Ticket Booking Analytics -- Streamlit dashboard (dataset v2)
+===================================================================
+
+This is the runnable fallback for the Power BI report. It reads the Oracle star
+schema through two views:
+
+    V_BOOKING_DETAIL     one row per booking, all dimensions joined
+    V_SHOW_PERFORMANCE   one row per show, occupancy derived
+
+Run:
+    $env:PYTHONPATH = "D:\\chinmay\\movie-ticket-booking-analytics\\src"
+    D:\\venvs\\cinema\\Scripts\\streamlit.exe run dashboard/app.py
+
+All data is synthetic. The dashboard demonstrates analytical method, not real
+cinema performance.
+"""
+
 from pathlib import Path
 import sys
 
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from db import get_conn
+from db import get_conn  # noqa: E402
 
-st.set_page_config(page_title="Movie Ticket Booking Analytics", layout="wide", page_icon="🎬")
+DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+st.set_page_config(
+    page_title="Movie Ticket Booking Analytics",
+    layout="wide",
+    page_icon="🎬",
+)
+
 
 @st.cache_data(ttl=300)
-def load_data():
-    con = get_conn()
-    q = """
-    SELECT f.booking_id, f.seats, f.ticket_price, f.convenience_fee, f.discount_amount, 
-           f.total_amount, f.promo_code, f.booking_status, f.booking_datetime,
-           c.customer_name, c.age, c.age_group, c.gender, c.city,
-           m.movie_title, m.genre, m.language,
-           s.screen, s.format, s.show_date, s.show_time,
-           d.day_name, d.month_name, d.year, d.is_weekend,
-           p.payment_method, p.booking_channel
-    FROM fact_bookings f
-    JOIN dim_customer c ON f.customer_key = c.customer_key
-    JOIN dim_movie m ON f.movie_key = m.movie_key
-    JOIN dim_show s ON f.show_key = s.show_key
-    JOIN dim_date d ON f.date_key = d.date_key
-    JOIN dim_payment p ON f.payment_key = p.payment_key
+def load_bookings() -> pd.DataFrame:
+    query = """
+        SELECT booking_id, booking_datetime, booking_status,
+               customer_id, customer_name, gender, age, age_group,
+               customer_city, customer_type,
+               movie_title, genre, language, rating,
+               theatre_name, theatre_city, show_id, screen, format,
+               show_date, show_time,
+               payment_method, booking_channel,
+               ticket_type, seats, ticket_price, convenience_fee,
+               promo_code, discount_amount, total_amount
+        FROM v_booking_detail
     """
+    con = get_conn()
     cur = con.cursor()
-    cur.execute(q)
-    cols = [d[0].lower() for d in cur.description]
-    df = pd.DataFrame(cur.fetchall(), columns=cols)
-    cur.close()
-    con.close()
-    df['show_date'] = pd.to_datetime(df['show_date'])
-    df['booking_datetime'] = pd.to_datetime(df['booking_datetime'])
-    return df
+    try:
+        cur.execute(query)
+        columns = [description[0].lower() for description in cur.description]
+        frame = pd.DataFrame(cur.fetchall(), columns=columns)
+    finally:
+        cur.close()
+        con.close()
 
-st.title("🎬 Movie Ticket Booking Analytics Dashboard")
-st.markdown("**Interactive Analytics | Oracle 26ai + Streamlit + Plotly**")
+    frame["show_date"] = pd.to_datetime(frame["show_date"])
+    frame["booking_datetime"] = pd.to_datetime(frame["booking_datetime"])
+    return frame
+
+
+@st.cache_data(ttl=300)
+def load_shows() -> pd.DataFrame:
+    query = """
+        SELECT show_id, movie_title, genre, language, rating,
+               theatre_name, city, screen, format, seats_capacity,
+               show_date, show_time, bookings, confirmed_seats,
+               confirmed_revenue, occupancy_rate
+        FROM v_show_performance
+    """
+    con = get_conn()
+    cur = con.cursor()
+    try:
+        cur.execute(query)
+        columns = [description[0].lower() for description in cur.description]
+        frame = pd.DataFrame(cur.fetchall(), columns=columns)
+    finally:
+        cur.close()
+        con.close()
+
+    frame["show_date"] = pd.to_datetime(frame["show_date"])
+    return frame
+
+
+def money(value: float) -> str:
+    return f"₹{value:,.0f}"
+
+
+st.title("🎬 Movie Ticket Booking Analytics")
+st.caption(
+    "Oracle 26ai Free star schema · synthetic dataset v2 · 10,000 bookings, "
+    "290 shows, 8 cities"
+)
 
 try:
-    df = load_data()
-except Exception as e:
-    st.error(f"Could not load data from Oracle: {e}")
+    bookings = load_bookings()
+    shows = load_shows()
+except Exception as error:  # noqa: BLE001
+    st.error(f"Could not load data from Oracle: {error}")
     st.stop()
 
-# Sidebar filters
+# ---------------------------------------------------------------------------
+# Filters
+# ---------------------------------------------------------------------------
 st.sidebar.header("Filters")
-cities = ['All'] + sorted(df['city'].unique().tolist())
-city_filter = st.sidebar.selectbox("City", cities)
-genres = ['All'] + sorted(df['genre'].unique().tolist())
-genre_filter = st.sidebar.selectbox("Genre", genres)
-languages = ['All'] + sorted(df['language'].unique().tolist())
-lang_filter = st.sidebar.selectbox("Language", languages)
-formats = ['All'] + sorted(df['format'].unique().tolist())
-fmt_filter = st.sidebar.selectbox("Format", formats)
+st.sidebar.caption("City means the theatre's city, not the customer's.")
 
-df_f = df.copy()
-if city_filter != 'All':
-    df_f = df_f[df_f['city'] == city_filter]
-if genre_filter != 'All':
-    df_f = df_f[df_f['genre'] == genre_filter]
-if lang_filter != 'All':
-    df_f = df_f[df_f['language'] == lang_filter]
-if fmt_filter != 'All':
-    df_f = df_f[df_f['format'] == fmt_filter]
+city_filter = st.sidebar.selectbox("City", ["All"] + sorted(bookings["theatre_city"].unique()))
+genre_filter = st.sidebar.selectbox("Genre", ["All"] + sorted(bookings["genre"].unique()))
+language_filter = st.sidebar.selectbox("Language", ["All"] + sorted(bookings["language"].unique()))
+format_filter = st.sidebar.selectbox("Format", ["All"] + sorted(bookings["format"].unique()))
 
-confirmed = df_f[df_f['booking_status']=='Confirmed']
-cancelled = df_f[df_f['booking_status']=='Cancelled']
+booking_view = bookings.copy()
+show_view = shows.copy()
 
-# KPIs
-col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("Total Bookings", f"{len(df_f):,}")
-col2.metric("Confirmed", f"{len(confirmed):,}")
-col3.metric("Cancelled", f"{len(cancelled):,}")
-col4.metric("Total Revenue (INR)", f"₹{confirmed['total_amount'].sum():,.0f}")
-col5.metric("Avg Booking Value", f"₹{confirmed['total_amount'].mean():,.0f}" if len(confirmed)>0 else "₹0")
+if city_filter != "All":
+    booking_view = booking_view[booking_view["theatre_city"] == city_filter]
+    show_view = show_view[show_view["city"] == city_filter]
+if genre_filter != "All":
+    booking_view = booking_view[booking_view["genre"] == genre_filter]
+    show_view = show_view[show_view["genre"] == genre_filter]
+if language_filter != "All":
+    booking_view = booking_view[booking_view["language"] == language_filter]
+    show_view = show_view[show_view["language"] == language_filter]
+if format_filter != "All":
+    booking_view = booking_view[booking_view["format"] == format_filter]
+    show_view = show_view[show_view["format"] == format_filter]
 
-st.divider()
+if booking_view.empty:
+    st.warning("No bookings match these filters.")
+    st.stop()
 
-# Row 1
-c1, c2 = st.columns(2)
-with c1:
-    st.subheader("Monthly Revenue Trend")
-    monthly = confirmed.groupby(confirmed['show_date'].dt.to_period('M'))['total_amount'].sum().reset_index()
-    monthly['show_date'] = monthly['show_date'].astype(str)
-    fig = px.line(monthly, x='show_date', y='total_amount', markers=True,
-                  labels={'show_date':'Month', 'total_amount':'Revenue (INR)'},
-                  template='plotly_white')
-    fig.update_traces(line_color='#FF6B6B')
-    st.plotly_chart(fig, width='stretch')
+confirmed = booking_view[booking_view["booking_status"] == "Confirmed"]
+cancelled = booking_view[booking_view["booking_status"] == "Cancelled"]
 
-with c2:
-    st.subheader("Revenue by Day of Week")
-    dow = confirmed.groupby('day_name')['total_amount'].sum().reindex(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']).reset_index()
-    fig = px.bar(dow, x='day_name', y='total_amount', color='total_amount',
-                 labels={'day_name':'Day', 'total_amount':'Revenue (INR)'},
-                 template='plotly_white', color_continuous_scale='Blues')
-    st.plotly_chart(fig, width='stretch')
-
-# Row 2
-c1, c2 = st.columns(2)
-with c1:
-    st.subheader("Top 10 Movies by Revenue")
-    top_movies = confirmed.groupby('movie_title')['total_amount'].sum().nlargest(10).reset_index()
-    fig = px.bar(top_movies, x='total_amount', y='movie_title', orientation='h',
-                 labels={'total_amount':'Revenue (INR)', 'movie_title':'Movie'},
-                 template='plotly_white', color='total_amount', color_continuous_scale='Reds')
-    fig.update_layout(yaxis={'categoryorder':'total ascending'})
-    st.plotly_chart(fig, width='stretch')
-
-with c2:
-    st.subheader("City-wise Performance")
-    city_rev = confirmed.groupby('city')['total_amount'].sum().sort_values(ascending=False).reset_index()
-    fig = px.bar(city_rev, x='city', y='total_amount', color='total_amount',
-                 labels={'city':'City', 'total_amount':'Revenue (INR)'},
-                 template='plotly_white', color_continuous_scale='Viridis')
-    st.plotly_chart(fig, width='stretch')
-
-# Row 3
-c1, c2 = st.columns(2)
-with c1:
-    st.subheader("Show Time Analysis")
-    stime = confirmed.groupby('show_time')['total_amount'].sum().reset_index()
-    fig = px.bar(stime, x='show_time', y='total_amount', color='total_amount',
-                 labels={'show_time':'Show Time', 'total_amount':'Revenue (INR)'},
-                 template='plotly_white', color_continuous_scale='Oranges')
-    st.plotly_chart(fig, width='stretch')
-
-with c2:
-    st.subheader("Genre Distribution")
-    genre_cnt = confirmed.groupby('genre')['total_amount'].sum().reset_index()
-    fig = px.pie(genre_cnt, values='total_amount', names='genre', hole=0.4,
-                 template='plotly_white')
-    fig.update_traces(textposition='inside', textinfo='percent+label')
-    st.plotly_chart(fig, width='stretch')
-
-# Row 4
-c1, c2 = st.columns(2)
-with c1:
-    st.subheader("Payment Method Split")
-    pay = df_f.groupby('payment_method').size().reset_index(name='count')
-    fig = px.pie(pay, values='count', names='payment_method', template='plotly_white')
-    fig.update_traces(textposition='inside', textinfo='percent+label')
-    st.plotly_chart(fig, width='stretch')
-
-with c2:
-    st.subheader("Booking Channel vs Cancellation Rate")
-    chan = df_f.groupby('booking_channel').agg(total=('booking_id','count'), cancelled=('booking_status', lambda x: (x=='Cancelled').sum())).reset_index()
-    chan['cancel_rate'] = (chan['cancelled']/chan['total']*100).round(2)
-    fig = px.bar(chan, x='booking_channel', y='cancel_rate', color='cancel_rate',
-                 labels={'booking_channel':'Channel', 'cancel_rate':'Cancellation Rate (%)'},
-                 template='plotly_white', color_continuous_scale='Reds')
-    st.plotly_chart(fig, width='stretch')
+# ---------------------------------------------------------------------------
+# KPI row
+# ---------------------------------------------------------------------------
+kpi1, kpi2, kpi3, kpi4, kpi5, kpi6 = st.columns(6)
+kpi1.metric("Bookings", f"{len(booking_view):,}")
+kpi2.metric("Confirmed", f"{len(confirmed):,}")
+kpi3.metric("Revenue", money(confirmed["total_amount"].sum()))
+kpi4.metric("Avg booking value", money(confirmed["total_amount"].mean()))
+kpi5.metric("Cancellation rate", f"{100 * len(cancelled) / len(booking_view):.2f}%")
+kpi6.metric(
+    "Mean show occupancy",
+    f"{100 * show_view['occupancy_rate'].mean():.1f}%",
+    help="Average of show-level occupancy, not of bookings.",
+)
 
 st.divider()
-st.subheader("Age Group Analysis")
-age = confirmed.groupby('age_group')['total_amount'].agg(['sum','count','mean']).reset_index()
-age.columns = ['Age Group', 'Revenue', 'Bookings', 'Avg Spend']
-age['Avg Spend'] = age['Avg Spend'].round(0)
-st.dataframe(age, width='stretch', hide_index=True)
 
-st.caption("Data Source: Oracle 26ai FREEPDB1 | Generated: 10,000 bookings | Project: Movie Ticket Booking Analytics")
+# ---------------------------------------------------------------------------
+# Tabs mirror the four planned Power BI pages
+# ---------------------------------------------------------------------------
+overview_tab, movies_tab, customers_tab, operations_tab = st.tabs(
+    ["Overview", "Movies & Formats", "Customers", "Operations"]
+)
+
+with overview_tab:
+    left, right = st.columns(2)
+
+    with left:
+        st.subheader("Monthly revenue")
+        monthly = (
+            confirmed.assign(month=confirmed["show_date"].dt.strftime("%Y-%m"))
+            .groupby("month", as_index=False)["total_amount"]
+            .sum()
+        )
+        figure = px.line(
+            monthly, x="month", y="total_amount", markers=True,
+            labels={"month": "Month", "total_amount": "Revenue (INR)"},
+            template="plotly_white",
+        )
+        figure.update_traces(line_color="#FF6B6B")
+        st.plotly_chart(figure, width="stretch")
+
+    with right:
+        st.subheader("Revenue by day of week")
+        daily = confirmed.assign(day=confirmed["show_date"].dt.day_name())
+        daily = daily.groupby("day", as_index=False)["total_amount"].sum()
+        daily["day"] = pd.Categorical(daily["day"], categories=DAY_ORDER, ordered=True)
+        daily = daily.sort_values("day")
+        figure = px.bar(
+            daily, x="day", y="total_amount", color="total_amount",
+            labels={"day": "Day", "total_amount": "Revenue (INR)"},
+            template="plotly_white", color_continuous_scale="Blues",
+        )
+        st.plotly_chart(figure, width="stretch")
+
+    st.subheader("City performance")
+    city = (
+        confirmed.groupby("theatre_city", as_index=False)
+        .agg(revenue=("total_amount", "sum"), bookings=("booking_id", "count"))
+        .sort_values("revenue", ascending=False)
+    )
+    city_occupancy = (
+        show_view.groupby("city", as_index=False)["occupancy_rate"].mean()
+        .rename(columns={"city": "theatre_city"})
+    )
+    city = city.merge(city_occupancy, on="theatre_city", how="left")
+    city["occupancy_pct"] = (100 * city["occupancy_rate"]).round(1)
+    figure = px.bar(
+        city, x="theatre_city", y="revenue", color="occupancy_pct",
+        labels={"theatre_city": "City", "revenue": "Revenue (INR)",
+                "occupancy_pct": "Occupancy (%)"},
+        template="plotly_white", color_continuous_scale="Viridis",
+    )
+    st.plotly_chart(figure, width="stretch")
+
+with movies_tab:
+    left, right = st.columns(2)
+
+    with left:
+        st.subheader("Top 10 movies by revenue")
+        top = (
+            confirmed.groupby("movie_title", as_index=False)["total_amount"]
+            .sum().nlargest(10, "total_amount")
+        )
+        figure = px.bar(
+            top, x="total_amount", y="movie_title", orientation="h",
+            labels={"total_amount": "Revenue (INR)", "movie_title": "Movie"},
+            template="plotly_white", color="total_amount",
+            color_continuous_scale="Reds",
+        )
+        figure.update_layout(yaxis={"categoryorder": "total ascending"})
+        st.plotly_chart(figure, width="stretch")
+
+    with right:
+        st.subheader("Genre mix")
+        genre = confirmed.groupby("genre", as_index=False)["total_amount"].sum()
+        figure = px.pie(
+            genre, values="total_amount", names="genre", hole=0.4,
+            template="plotly_white",
+        )
+        figure.update_traces(textposition="inside", textinfo="percent+label")
+        st.plotly_chart(figure, width="stretch")
+
+    left, right = st.columns(2)
+
+    with left:
+        st.subheader("Language revenue")
+        language = confirmed.groupby("language", as_index=False)["total_amount"].sum()
+        figure = px.bar(
+            language, x="language", y="total_amount", color="language",
+            labels={"language": "Language", "total_amount": "Revenue (INR)"},
+            template="plotly_white",
+        )
+        st.plotly_chart(figure, width="stretch")
+
+    with right:
+        st.subheader("Format revenue")
+        fmt = confirmed.groupby("format", as_index=False)["total_amount"].sum()
+        figure = px.bar(
+            fmt, x="format", y="total_amount", color="format",
+            labels={"format": "Format", "total_amount": "Revenue (INR)"},
+            template="plotly_white",
+        )
+        st.plotly_chart(figure, width="stretch")
+
+with customers_tab:
+    left, right = st.columns(2)
+
+    with left:
+        st.subheader("Customer segments")
+        segments = (
+            confirmed.groupby("customer_type", as_index=False)
+            .agg(
+                customers=("customer_id", "nunique"),
+                bookings=("booking_id", "count"),
+                revenue=("total_amount", "sum"),
+            )
+        )
+        segments["revenue_per_customer"] = (
+            segments["revenue"] / segments["customers"]
+        ).round(0)
+        segments = segments.sort_values("revenue", ascending=False)
+        st.dataframe(segments, width="stretch", hide_index=True)
+
+        figure = px.bar(
+            segments, x="customer_type", y="revenue", color="customer_type",
+            labels={"customer_type": "Segment", "revenue": "Revenue (INR)"},
+            template="plotly_white",
+        )
+        st.plotly_chart(figure, width="stretch")
+
+    with right:
+        st.subheader("Payment method mix")
+        payment = (
+            booking_view.groupby("payment_method", as_index=False)
+            .agg(bookings=("booking_id", "count"))
+            .sort_values("bookings", ascending=False)
+        )
+        figure = px.pie(
+            payment, values="bookings", names="payment_method",
+            template="plotly_white",
+        )
+        figure.update_traces(textposition="inside", textinfo="percent+label")
+        st.plotly_chart(figure, width="stretch")
+
+    st.subheader("Age group")
+    age = (
+        confirmed.groupby("age_group", as_index=False)
+        .agg(
+            bookings=("booking_id", "count"),
+            revenue=("total_amount", "sum"),
+            avg_booking_value=("total_amount", "mean"),
+        )
+        .sort_values("age_group")
+    )
+    age["avg_booking_value"] = age["avg_booking_value"].round(0)
+    st.dataframe(age, width="stretch", hide_index=True)
+
+    st.subheader("Ticket type")
+    ticket = (
+        confirmed.groupby("ticket_type", as_index=False)
+        .agg(
+            bookings=("booking_id", "count"),
+            tickets=("seats", "sum"),
+            revenue=("total_amount", "sum"),
+        )
+    )
+    ticket["revenue_per_ticket"] = (ticket["revenue"] / ticket["tickets"]).round(0)
+    st.dataframe(ticket, width="stretch", hide_index=True)
+
+with operations_tab:
+    left, right = st.columns(2)
+
+    with left:
+        st.subheader("Occupancy by show time")
+        slot = (
+            show_view.groupby("show_time", as_index=False)
+            .agg(
+                shows=("show_id", "count"),
+                avg_occupancy=("occupancy_rate", "mean"),
+            )
+        )
+        slot["occupancy_pct"] = (100 * slot["avg_occupancy"]).round(1)
+        figure = px.bar(
+            slot, x="show_time", y="occupancy_pct", color="occupancy_pct",
+            labels={"show_time": "Show time", "occupancy_pct": "Occupancy (%)"},
+            template="plotly_white", color_continuous_scale="Oranges",
+        )
+        st.plotly_chart(figure, width="stretch")
+
+    with right:
+        st.subheader("Cancellation rate by channel")
+        channel = (
+            booking_view.groupby("booking_channel", as_index=False)
+            .agg(
+                bookings=("booking_id", "count"),
+                cancelled=("booking_status", lambda values: (values == "Cancelled").sum()),
+            )
+        )
+        channel["cancellation_pct"] = (
+            100 * channel["cancelled"] / channel["bookings"]
+        ).round(2)
+        figure = px.bar(
+            channel, x="booking_channel", y="cancellation_pct",
+            color="cancellation_pct",
+            labels={"booking_channel": "Channel",
+                    "cancellation_pct": "Cancellation rate (%)"},
+            template="plotly_white", color_continuous_scale="Reds",
+        )
+        st.plotly_chart(figure, width="stretch")
+
+    st.subheader("Theatre performance")
+    theatre = (
+        show_view.groupby(["theatre_name", "city"], as_index=False)
+        .agg(
+            shows=("show_id", "count"),
+            confirmed_seats=("confirmed_seats", "sum"),
+            revenue=("confirmed_revenue", "sum"),
+            occupancy=("occupancy_rate", "mean"),
+        )
+        .sort_values("revenue", ascending=False)
+    )
+    theatre["occupancy_pct"] = (100 * theatre["occupancy"]).round(1)
+    theatre = theatre[["theatre_name", "city", "shows", "confirmed_seats",
+                       "revenue", "occupancy_pct"]]
+    st.dataframe(theatre, width="stretch", hide_index=True)
+
+    st.subheader("Promo codes")
+    promo = (
+        confirmed.groupby("promo_code", as_index=False)
+        .agg(
+            bookings=("booking_id", "count"),
+            revenue=("total_amount", "sum"),
+            discount=("discount_amount", "sum"),
+        )
+        .sort_values("revenue", ascending=False)
+    )
+    st.dataframe(promo, width="stretch", hide_index=True)
+
+st.divider()
+st.caption(
+    "Source: Oracle 26ai Free (FREEPDB1) · views V_BOOKING_DETAIL and "
+    "V_SHOW_PERFORMANCE · all data synthetic."
+)

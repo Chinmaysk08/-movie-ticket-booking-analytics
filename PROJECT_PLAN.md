@@ -1,7 +1,8 @@
 # PROJECT PLAN — Movie Ticket Booking Analytics
 
-> Status: **Phase 3 complete — the cleaned dataset passes all 19 checks.
-> Awaiting review before rebuilding the Oracle layer.**
+> Status: **Phase 5 complete — the Oracle star schema is rebuilt, loaded, and
+> reconciled to ₹10,787,567; all 25 SQL queries execute and every revenue slice
+> reconciles. Awaiting review before EDA.**
 > Last updated: 2026-10-26
 > Owner: Chinmay
 > Project path: `D:\chinmay\movie-ticket-booking-analytics`
@@ -30,7 +31,7 @@ cinema sales, or measured market demand. Every result is labelled synthetic.
 |---|---|---|---|
 | Environment | Python 3.13.17 venv at `D:\venvs\cinema` | — | ✅ Working |
 | Libraries | pandas 3.1.0, numpy 2.5.4, matplotlib, seaborn, jupyter, oracledb, streamlit, plotly | — | ✅ Installed |
-| Database | Oracle 26ai Free, `FREEPDB1`, port 1521 | v1 | ⚠️ Running, but holds v1 data |
+| Database | Oracle 26ai Free, `FREEPDB1`, port 1521 | **v2** | ✅ Loaded and reconciled |
 | Raw data | `data/raw/bookings_raw.csv` (10,300 × 31) | **v2** | ✅ Current |
 | Generation | `src/00_generate_data.py` (seed 42) | **v2** | ✅ Runs |
 | Data dictionary | `docs/data_dictionary.md` (31 columns + rules) | **v2** | ✅ Current |
@@ -39,14 +40,14 @@ cinema sales, or measured market demand. Every result is labelled synthetic.
 | Clean data | `data/clean/bookings_clean.csv` (10,000 × 33) | **v2** | ✅ Current |
 | Cleaning script | `src/01_clean_data.py` + `reports/cleaning_log.txt` | **v2** | ✅ 19/19 checks pass |
 | Cleaning notebook | `notebooks/02_data_cleaning.ipynb` (18 code cells, 0 errors) | **v2** | ✅ Executed; matches script exactly |
-| Oracle schema | `sql/01_schema.sql` | v1 | ❌ Stale — no theatre/capacity/ticket_type/rating |
-| Oracle loader | `src/03_oracle_load.py` | v1 | ❌ Stale |
-| Power BI export | `src/05_export_powerbi.py` → `data/powerbi/*.csv` | v1 | ❌ Stale |
-| Dashboard | `dashboard/app.py`, `run_dashboard.ps1` | v1 | ⚠️ Runs, queries old schema |
-| SQL analysis | `sql/03_analysis_queries.sql` (20 queries) | v1 | ⚠️ Written, not all validated against v2 |
+| Oracle schema | `sql/01_schema.sql` (7 tables, 4 views, 105 constraints) | **v2** | ✅ Built |
+| Oracle runner/loader | `src/02_create_schema.py`, `src/03_oracle_load.py` | **v2** | ✅ 18/18 reconciliation checks |
+| Power BI export | `src/05_export_powerbi.py` → `data/powerbi/*.csv` | **v2** | ✅ 8 objects, revenue matches |
+| Dashboard | `dashboard/app.py`, `run_dashboard.ps1` | **v2** | ✅ Headless test passes; 4 tabs |
+| SQL analysis | `sql/03_analysis_queries.sql` (25 queries) | **v2** | ✅ All execute; 20 revenue slices reconcile |
 | README | `README.md` | v1 | ⚠️ Marked outdated; full rewrite in Phase 8 |
 | Notebooks | `01_data_understanding`, `02_data_cleaning` done; EDA pending | **v2** | ⚠️ EDA not started |
-| Git | installed (2.56) | — | ⚠️ Installed; repo not initialised |
+| Git | installed (2.56) | — | ✅ Repo initialised, 2 commits |
 | Power BI Desktop | — | — | ❌ Blocked: not installed |
 
 **Rule for this project:** a downstream artifact is only "done" when it has been
@@ -75,7 +76,7 @@ Every number below is measured, not assumed. Source: executed
 | Confirmed revenue (deduplicated) | **₹10,787,567** |
 | Average confirmed booking value | **₹1,158.58** |
 | Cancellation rate | **6.89%** (689 of 10,000) |
-| Mean show occupancy (deduplicated) | **40.2%** (min 5.0%, max 91.5%) |
+| Mean show occupancy (deduplicated) | **40.18%** (min 5.0%, max 91.5%) |
 | Rows with at least one blank | 223 |
 
 ### 3.1 Segments (deduplicated)
@@ -157,8 +158,8 @@ disagree with their inputs.
 | D4 | No seat capacity | 80 screens, 100–340 seats, capacity stored per booking | ✅ Fixed |
 | D5 | No `ticket_type` | Standard / Premium / Recliner | ✅ Fixed |
 | D6 | No movie rating | One rating per movie, 0–10 | ✅ Fixed |
-| D7 | `total_amount` not re-derived | Cleaning recomputes and asserts the formula | ⏳ Phase 3 |
-| D8 | `age_group` could drift from `age` | Cleaning re-derives and asserts it | ⏳ Phase 3 |
+| D7 | `total_amount` not re-derived | Cleaning recomputes and asserts the formula; Oracle enforces it with a CHECK constraint | ✅ Fixed |
+| D8 | `age_group` could drift from `age` | Cleaning re-derives and asserts it | ✅ Fixed |
 
 v1 is preserved at `archive/v1_2026-10-26/` (raw/clean CSVs, Power BI CSVs,
 scripts, SQL, dashboard) for comparison and rollback.
@@ -182,15 +183,16 @@ scripts, SQL, dashboard) for comparison and rollback.
 └──────────────────────────┬──────────────────────────────────┘
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 3. STORAGE LAYER (Oracle 26ai Free, star schema)            │
+│ 3. STORAGE LAYER (Oracle 26ai Free, star + snowflaked dims)  │
 │    DIM_CUSTOMER / DIM_MOVIE / DIM_THEATRE / DIM_SHOW        │
 │    DIM_DATE / DIM_PAYMENT / FACT_BOOKINGS                   │
+│    4 views: show, booking, monthly, movie performance       │
 │    sql/01_schema.sql + src/03_oracle_load.py                │
 └───────────────┬──────────────────────────────┬──────────────┘
                 ▼                              ▼
 ┌───────────────────────────┐   ┌─────────────────────────────┐
 │ 4a. SQL ANALYTICS         │   │ 4b. PYTHON EDA              │
-│ 20 queries, views         │   │ notebooks/03_eda.ipynb      │
+│ 25 queries, 4 views       │   │ notebooks/03_eda.ipynb      │
 │ sql/03_analysis_queries   │   │ reports/figures/*.png       │
 └───────────────┬───────────┘   └──────────────┬──────────────┘
                 └──────────────┬───────────────┘
@@ -207,7 +209,11 @@ scripts, SQL, dashboard) for comparison and rollback.
 - Each layer has one job, so failures are easy to isolate.
 - Pandas cleaning is inspectable in a notebook — interviewers can follow the
   reasoning, not just the result.
-- A star schema shows dimensional-modelling literacy without over-normalising.
+- The model is a star at booking grain with two **snowflaked** dimensions:
+  `DIM_MOVIE` and `DIM_THEATRE` hang off `DIM_SHOW`, because a movie and a
+  theatre are attributes of a show, not of a booking. Calling that a "star"
+  would be loose; the README says "star with snowflaked dimensions" and
+  explains why.
 - Two dashboard options means there is always something demoable, even if
   Power BI is unavailable on the review machine.
 - Everything is scripted and seeded, so results are reproducible — a common
@@ -215,7 +221,7 @@ scripts, SQL, dashboard) for comparison and rollback.
 
 **Database decision:** keep **Oracle 26ai Free** (already installed, verified).
 It is less common than MySQL/PostgreSQL in junior portfolios, which is an
-advantage if the star schema, CTEs, window functions and `MERGE` can be
+advantage if the schema, CTEs, window functions and `MERGE` can be
 explained. The README will state the choice and include a portability note.
 
 ---
@@ -285,11 +291,12 @@ explained. The README will state the choice and include a portability note.
 - [ ] `reports/eda_findings.md` — question → result → interpretation → next step
 
 ### Phase 5 — Oracle SQL
-- [ ] Updated star schema: add `DIM_THEATRE`, `show_id`, capacity, ticket type, rating
-- [ ] Reload + row-count and revenue reconciliation to ₹10,787,567
-- [ ] 15+ queries (target 20), each executed and result captured
-- [ ] 3–4 views; `EXPLAIN PLAN` example
-- [ ] `reports/sql_results.md`
+- [x] Updated schema: `DIM_THEATRE`, `show_id`, capacity, ticket type, rating, `customer_type`
+- [x] Reload + 18 reconciliation checks; revenue = ₹10,787,567
+- [x] 25 queries, each executed and result captured
+- [x] 4 views; `EXPLAIN PLAN` example in `reports/sql_results.md`
+- [x] `reports/sql_results.md` and `reports/oracle_load_report.md`
+- [x] Streamlit fallback updated to the v2 views (headless test passes)
 
 ### Phase 6 — Power BI
 - [ ] Install Desktop; import star-schema CSVs
@@ -337,7 +344,7 @@ explained. The README will state the choice and include a portability note.
 |---|---|
 | Synthetic data → insights are illustrative only | Label everywhere; no real-world claims |
 | City shares are sampled from a prior and can reorder | Document that they are illustrative, not market estimates |
-| Occupancy is measured on a ~96% sample of each show | Documented: 40.2% measured vs 40.9% designed |
+| Occupancy is measured on a ~96% sample of each show | Documented: 40.18% measured vs 40.9% designed |
 | Stale v1 artifacts could be mistaken for current | Status table above; README banner; rebuild in dependency order |
 | Oracle is unusual in junior portfolios | Explain choice; note ANSI-portable SQL |
 | Power BI unavailable on review machine | Streamlit fallback + screenshots in README |
@@ -374,17 +381,28 @@ explained. The README will state the choice and include a portability note.
 | 2026-10-26 | Oracle 26ai Free as the database | Already installed and verified; stronger portfolio differentiator |
 | 2026-10-26 | Power BI primary, Streamlit fallback | Power BI is the requested tool; Streamlit guarantees a runnable demo |
 | 2026-10-26 | Repair defects instead of deleting rows | Every defect is recoverable from evidence in the file; deleting would lose real revenue and break the 10,000-row target |
+| 2026-10-26 | `DIM_SHOW` stores capacity, not occupancy | Occupancy is derived by `V_SHOW_PERFORMANCE` as confirmed seats ÷ capacity, so the ratio can never drift from its inputs |
+| 2026-10-26 | Snowflake `DIM_MOVIE` and `DIM_THEATRE` off `DIM_SHOW` | A movie and a theatre are attributes of a show; duplicating them on 10,000 fact rows would add no analytical value |
+| 2026-10-26 | Revenue formula enforced by a CHECK constraint | A loader bug cannot silently produce a total that disagrees with price × seats + fee − discount |
+| 2026-10-26 | 25 queries, each revenue slice reconciled to ₹10,787,567 | A slice that does not add up to the total reveals a join or filter bug that a plausible-looking table would hide |
 
 ---
 
 ## 12. Next Step
 
-**Phase 3 is complete.** `data/clean/bookings_clean.csv` reconciles to
-₹10,787,567 and passes all 19 checks.
+**Phase 5 is complete.** Oracle holds 10,000 bookings in 7 tables and 4 views;
+all 18 load checks and all 20 revenue-slice reconciliations pass. The Streamlit
+fallback reads the v2 views and matches the SQL KPIs.
 
-**Next:** Phase 5 (Oracle) and Phase 4 (EDA). Recommended order: rebuild the
-Oracle star schema first, because Power BI and the SQL portfolio depend on it;
-the EDA notebook can then read either the clean CSV or the database.
+**Next:** Phase 4 (EDA) — `notebooks/03_exploratory_data_analysis.ipynb` and
+`reports/eda_findings.md`, using the clean CSV and the validated SQL results.
+The EDA should explain the patterns the queries exposed, not repeat them:
+Mumbai's revenue lead, the 18:45/21:30 peak, the 12.76% Third-Party
+cancellation rate, Recliner's ₹833 revenue per ticket, and the near-zero
+correlation between rating and bookings (r = 0.04).
+
+**Then:** Phase 6 (Power BI) once Desktop is installed. `powerbi/build_guide.md`
+and `powerbi/dax_measures.txt` are already written for the v2 model.
 
 **Open item for the user:** Power BI Desktop still needs to be installed from
 the Microsoft Store (requires a signed-in account). Everything else can proceed
