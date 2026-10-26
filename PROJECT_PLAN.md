@@ -1,7 +1,7 @@
 # PROJECT PLAN — Movie Ticket Booking Analytics
 
-> Status: **Phase 2 complete — dataset v2 is built and documented. Awaiting
-> review before cleaning.**
+> Status: **Phase 3 complete — the cleaned dataset passes all 19 checks.
+> Awaiting review before rebuilding the Oracle layer.**
 > Last updated: 2026-10-26
 > Owner: Chinmay
 > Project path: `D:\chinmay\movie-ticket-booking-analytics`
@@ -36,15 +36,16 @@ cinema sales, or measured market demand. Every result is labelled synthetic.
 | Data dictionary | `docs/data_dictionary.md` (31 columns + rules) | **v2** | ✅ Current |
 | Understanding | `notebooks/01_data_understanding.ipynb` (21 code cells, 0 errors) | **v2** | ✅ Executed |
 | Quality report | `reports/data_quality_report.md` (11 issues, 14 targets) | **v2** | ✅ Current |
-| Clean data | `data/clean/bookings_clean.csv` | v1 | ❌ Stale — rebuild in Phase 3 |
-| Cleaning script | `src/01_clean_data.py` + `reports/cleaning_log.txt` | v1 | ❌ Stale — rewrite in Phase 3 |
+| Clean data | `data/clean/bookings_clean.csv` (10,000 × 33) | **v2** | ✅ Current |
+| Cleaning script | `src/01_clean_data.py` + `reports/cleaning_log.txt` | **v2** | ✅ 19/19 checks pass |
+| Cleaning notebook | `notebooks/02_data_cleaning.ipynb` (18 code cells, 0 errors) | **v2** | ✅ Executed; matches script exactly |
 | Oracle schema | `sql/01_schema.sql` | v1 | ❌ Stale — no theatre/capacity/ticket_type/rating |
 | Oracle loader | `src/03_oracle_load.py` | v1 | ❌ Stale |
 | Power BI export | `src/05_export_powerbi.py` → `data/powerbi/*.csv` | v1 | ❌ Stale |
 | Dashboard | `dashboard/app.py`, `run_dashboard.ps1` | v1 | ⚠️ Runs, queries old schema |
 | SQL analysis | `sql/03_analysis_queries.sql` (20 queries) | v1 | ⚠️ Written, not all validated against v2 |
 | README | `README.md` | v1 | ⚠️ Marked outdated; full rewrite in Phase 8 |
-| Notebooks 02–03 | cleaning, EDA | — | ❌ Not started |
+| Notebooks | `01_data_understanding`, `02_data_cleaning` done; EDA pending | **v2** | ⚠️ EDA not started |
 | Git | installed (2.56) | — | ⚠️ Installed; repo not initialised |
 | Power BI Desktop | — | — | ❌ Blocked: not installed |
 
@@ -68,7 +69,7 @@ Every number below is measured, not assumed. Source: executed
 | Theatres / screens | **16** multiplexes / **80** screens (5 per multiplex) |
 | Movies | **22** fictional titles (Hindi / Tamil / Telugu) |
 | Cities | **8** |
-| Show-date window | 2025-10-02 → 2026-09-30 (raw includes 20 × 2027-12-31 defects) |
+| Show-date window | 2025-10-02 → 2026-09-27 (design window 2025-10-01 → 2026-09-30; raw includes 20 × 2027-12-31 defects) |
 | Booking-timestamp window | 2025-09-02 → 2026-09-27 |
 | Confirmed tickets (deduplicated) | **22,690** |
 | Confirmed revenue (deduplicated) | **₹10,787,567** |
@@ -267,16 +268,16 @@ explained. The README will state the choice and include a portability note.
 - [x] `notebooks/01_data_understanding.ipynb` (21 code cells, 0 errors)
 - [x] `reports/data_quality_report.md` (11 issues, treatment plan, 14 targets)
 
-### Phase 3 — Cleaning (next)
-- [ ] Rewrite `src/01_clean_data.py` for v2
-- [ ] Read `phone` as text, not float
-- [ ] Deduplicate, normalise cities, repair prices/times/dates/ratings/ages
-- [ ] Fill email/phone/age_group/promo from in-file evidence
-- [ ] Derive `age_group`, `customer_type`, `show_occupancy_rate`
-- [ ] `notebooks/02_data_cleaning.ipynb` with before/after for every repair
-- [ ] `data/clean/bookings_clean.csv` (10,000 × 33: 31 raw + `customer_type` + `show_occupancy_rate`)
-- [ ] Assertions: 10,000 unique bookings, 0 required blanks, 0 formula failures, 0 ≤ occupancy ≤ 1, revenue = ₹10,787,567
-- [ ] Raw file SHA256 unchanged
+### Phase 3 — Cleaning
+- [x] Rewrite `src/01_clean_data.py` for v2
+- [x] Read `phone` as text, not float
+- [x] Deduplicate, normalise cities, repair prices/times/dates/ratings/ages
+- [x] Fill email/phone/age_group/promo from in-file evidence
+- [x] Derive `age_group`, `customer_type`, `show_occupancy_rate`
+- [x] `notebooks/02_data_cleaning.ipynb` with before/after for every repair
+- [x] `data/clean/bookings_clean.csv` (10,000 × 33)
+- [x] Assertions: 19/19 pass, revenue = ₹10,787,567
+- [x] Raw file SHA256 unchanged
 
 ### Phase 4 — EDA
 - [ ] `notebooks/03_exploratory_data_analysis.ipynb`
@@ -352,7 +353,7 @@ explained. The README will state the choice and include a portability note.
 - [x] Data dictionary (31 columns + derived fields)
 - [x] Data-understanding notebook executed with 0 errors
 - [x] Data-quality report with evidence and validation targets
-- [ ] Cleaning notebook reproducible end-to-end
+- [x] Cleaning notebook reproducible end-to-end
 - [ ] EDA notebook with interpretations (no invented insights)
 - [ ] Oracle schema + 10,000 rows + 15 validated queries
 - [ ] Python/SQL revenue reconciliation passes
@@ -378,10 +379,12 @@ explained. The README will state the choice and include a portability note.
 
 ## 12. Next Step
 
-**Phase 3 — Cleaning.** Rewrite `src/01_clean_data.py` for v2, build
-`notebooks/02_data_cleaning.ipynb` with before/after evidence for each of the
-11 issues, and produce `data/clean/bookings_clean.csv` that passes all 14
-validation targets. Then stop for review before touching Oracle.
+**Phase 3 is complete.** `data/clean/bookings_clean.csv` reconciles to
+₹10,787,567 and passes all 19 checks.
+
+**Next:** Phase 5 (Oracle) and Phase 4 (EDA). Recommended order: rebuild the
+Oracle star schema first, because Power BI and the SQL portfolio depend on it;
+the EDA notebook can then read either the clean CSV or the database.
 
 **Open item for the user:** Power BI Desktop still needs to be installed from
 the Microsoft Store (requires a signed-in account). Everything else can proceed

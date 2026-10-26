@@ -55,7 +55,7 @@ deduplication is the first cleaning step, not an afterthought.
 | Distinct shows | 290 |
 | Theatres | 16 (2 per city, 5 screens each) |
 | Movies | 22 fictional titles |
-| Show-date window | 2025-10-02 → 2026-09-30 (design window starts 2025-10-01) |
+| Show-date window | 2025-10-02 → 2026-09-27 (inside the 2025-10-01 → 2026-09-30 design window) |
 | Booking-timestamp window | 2025-09-02 → 2026-09-27 (bookings can precede the show by up to 30 days) |
 | Confirmed revenue (deduplicated) | ₹10,787,567 |
 | Confirmed tickets (deduplicated) | 22,690 |
@@ -425,7 +425,7 @@ it.
 
 ## 7. Cleaning plan and validation targets
 
-The cleaning notebook will apply the treatments above in this order:
+The cleaning notebook applies the treatments above in this order:
 
 1. Read the raw file with `phone` as text (identifiers must not become floats).
 2. Drop duplicate `booking_id` rows.
@@ -453,6 +453,46 @@ The cleaning notebook will apply the treatments above in this order:
 | 12 | Occupancy | 0 values outside 0–1 |
 | 13 | Revenue reconciliation | clean total = ₹10,787,567 (generator base) |
 | 14 | Raw file untouched | SHA256 unchanged before/after |
+
+### 7.1 Outcome (executed 2026-10-26)
+
+`src/01_clean_data.py` and `notebooks/02_data_cleaning.ipynb` both produce
+`data/clean/bookings_clean.csv` (10,000 rows × 33 columns) and both pass all
+**19 checks**. The notebook additionally asserts that its output is identical
+to the script's output, row by row and column by column.
+
+Repair counts are measured **after** deduplication, so a few are smaller than
+the raw counts in section 4 — a duplicate copy can carry a defect too, and
+removing the copy removes one instance of it.
+
+| Repair | Raw rows | After dedupe | Result |
+|---|---:|---:|---|
+| Duplicate bookings removed | 300 | — | 10,000 unique bookings |
+| Non-positive prices recovered | 52 | 50 | 0 failures; range ₹175–₹1,510 |
+| Invalid show times repaired | 31 | 30 | 0 invalid |
+| Out-of-period dates repaired | 20 | 20 | 0 outside window |
+| Out-of-range ratings repaired | 10 | 10 | 0 outside 0–10 |
+| Impossible ages repaired | 10 | 10 | 0 outside 18–68; fallback unused |
+| Missing emails filled | 62 | 60 | 0 blanks; 0 placeholders |
+| Missing phones filled | 61 | 60 | 0 blanks; 0 placeholders |
+| Missing `age_group` re-derived | 51 | 50 | 0 blanks; 0 conflicts |
+| Missing promos inferred | 50 | 50 | 15 real promos recovered, 35 set to `NONE` |
+| City labels normalised | 242 | 232 | 34 labels → 8 |
+
+Final reconciliation:
+
+| KPI | Value |
+|---|---:|
+| Rows × columns | 10,000 × 33 |
+| Confirmed bookings | 9,311 |
+| Confirmed tickets | 22,690 |
+| Confirmed revenue | **₹10,787,567** |
+| Cancellation rate | 6.89% |
+| Mean occupancy (per show) | 40.2% |
+| Raw file SHA256 | unchanged (`4130a03d…`) |
+
+The raw file was not modified. The cleaned file is a new artifact, so the
+evidence used to justify every repair remains available.
 
 ---
 

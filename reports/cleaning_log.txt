@@ -1,8 +1,96 @@
-[2026-10-26 14:07:42] Reading D:\chinmay\movie-ticket-booking-analytics\data\raw\bookings_raw.csv
-[2026-10-26 14:07:42] Original rows: 10300
-[2026-10-26 14:07:43] Removed duplicates: 300. Rows now: 10000
-[2026-10-26 14:07:43] Nulls/empty fixed: 200
-[2026-10-26 14:07:43] Clean rows: 10000
-[2026-10-26 14:07:44] Wrote clean CSV to D:\chinmay\movie-ticket-booking-analytics\data\clean\bookings_clean.csv
-[2026-10-26 14:07:44] Top cities: [('Bengaluru', 3014), ('Delhi', 1053), ('Chennai', 1025), ('Hyderabad', 992), ('Mumbai', 991)]
-[2026-10-26 14:07:44] Confirmed revenue: INR 12,318,867
+[2026-10-26 15:35:34] ==============================================================================
+[2026-10-26 15:35:34] CLEANING RUN -- dataset v2
+[2026-10-26 15:35:34] ==============================================================================
+[2026-10-26 15:35:34] Raw file : D:\chinmay\movie-ticket-booking-analytics\data\raw\bookings_raw.csv
+[2026-10-26 15:35:34] Raw SHA256: 4130a03d818488c5b97ad8aa9016e4c345569e30a19e3204b54ad8f300186963
+[2026-10-26 15:35:34] Rows read : 10,300
+[2026-10-26 15:35:34] Columns   : 31
+
+[2026-10-26 15:35:34] STEP 1 -- Remove duplicate bookings
+[2026-10-26 15:35:34]   before : 10,300 rows
+[2026-10-26 15:35:34]   after  : 10,000 rows
+[2026-10-26 15:35:34]   removed: 300 rows with a repeated booking_id
+
+[2026-10-26 15:35:34] STEP 2 -- Normalise city labels
+[2026-10-26 15:35:34]   distinct labels before: 34
+[2026-10-26 15:35:34]   distinct labels after : 8
+[2026-10-26 15:35:34]   rows changed          : 232
+
+[2026-10-26 15:35:34] STEP 3 -- Recover non-positive ticket prices
+[2026-10-26 15:35:34]   rows repaired: 50
+[2026-10-26 15:35:34]   formula      : ticket_price = (total - fee + discount) / seats
+[2026-10-26 15:35:34]   new range    : 175 to 1510
+
+[2026-10-26 15:35:34] STEP 4 -- Repair show dates and times
+[2026-10-26 15:35:34]   invalid show_time rows : 30
+[2026-10-26 15:35:34]   out-of-period date rows: 20
+[2026-10-26 15:35:34]   shows without a valid time to copy: 0
+[2026-10-26 15:35:34]   shows without a valid date to copy: 0
+
+[2026-10-26 15:35:36] STEP 5 -- Repair ratings and ages
+[2026-10-26 15:35:36]   out-of-range ratings repaired: 10
+[2026-10-26 15:35:36]   impossible ages repaired     : 10
+[2026-10-26 15:35:36]   age fallback (median) used   : 0
+
+[2026-10-26 15:35:36] STEP 6 -- Fill missing customer_email
+[2026-10-26 15:35:36]   blanks found        : 60
+[2026-10-26 15:35:36]   copied from customer: 60
+[2026-10-26 15:35:36]   placeholders used   : 0
+
+[2026-10-26 15:35:36] STEP 6 -- Fill missing phone
+[2026-10-26 15:35:36]   blanks found        : 60
+[2026-10-26 15:35:36]   copied from customer: 60
+[2026-10-26 15:35:36]   placeholders used   : 0
+
+[2026-10-26 15:35:36] STEP 7 -- Re-derive age_group from age
+[2026-10-26 15:35:36]   blanks before        : 50
+[2026-10-26 15:35:36]   rows that disagreed  : 0
+[2026-10-26 15:35:36]   bands after          : ['18-24', '25-34', '35-44', '45-54', '55+']
+
+[2026-10-26 15:35:36] STEP 8 -- Infer missing promo codes
+[2026-10-26 15:35:36]   blanks found       : 50
+[2026-10-26 15:35:36]   matched to a rate  : 50
+[2026-10-26 15:35:36]   set to NONE        : 35
+
+[2026-10-26 15:35:36] STEP 9 -- Verify the revenue formula
+[2026-10-26 15:35:36]   rows failing: 0
+
+[2026-10-26 15:35:36] STEP 10 -- Derive reporting fields
+[2026-10-26 15:35:36]   customer_type counts : {'Loyal': 5329, 'Returning': 3581, 'New': 1090}
+[2026-10-26 15:35:36]   occupancy min/mean/max: 0.050 / 0.402 / 0.915
+
+[2026-10-26 15:35:36] ==============================================================================
+[2026-10-26 15:35:36] VALIDATION
+[2026-10-26 15:35:36] ==============================================================================
+[2026-10-26 15:35:36]   [PASS] Rows = 10,000                          10,000
+[2026-10-26 15:35:36]   [PASS] Unique booking_id = 10,000             10,000
+[2026-10-26 15:35:36]   [PASS] No blanks in required fields           0 blanks
+[2026-10-26 15:35:36]   [PASS] Revenue formula holds                  0 failures
+[2026-10-26 15:35:36]   [PASS] Ticket price > 0                       min 175
+[2026-10-26 15:35:36]   [PASS] Show time in valid slots               0 invalid
+[2026-10-26 15:35:36]   [PASS] Show date inside window                2025-10-02 to 2026-09-27
+[2026-10-26 15:35:36]   [PASS] Rating 0-10                            6.5 to 8.4
+[2026-10-26 15:35:36]   [PASS] Age 18-68                              18 to 68
+[2026-10-26 15:35:36]   [PASS] Exactly 8 canonical cities             8 labels
+[2026-10-26 15:35:36]   [PASS] Show consistency                       0 shows conflict
+[2026-10-26 15:35:36]   [PASS] Customer consistency                   0 customers conflict
+[2026-10-26 15:35:36]   [PASS] Occupancy within 0-1                   0.050 to 0.915
+[2026-10-26 15:35:36]   [PASS] Confirmed revenue = INR 10,787,567     10,787,567
+[2026-10-26 15:35:36]   [PASS] No discount without a promo            0 rows
+[2026-10-26 15:35:36]   [PASS] Seats <= capacity                      0 rows
+[2026-10-26 15:35:36]   [PASS] Booking before show start              0 rows
+[2026-10-26 15:35:36]   [PASS] Phone is 10 digits starting 6-9        0 invalid
+[2026-10-26 15:35:36]   [PASS] Raw file untouched                     SHA256 match
+
+[2026-10-26 15:35:37] ==============================================================================
+[2026-10-26 15:35:37] SUMMARY
+[2026-10-26 15:35:37] ==============================================================================
+[2026-10-26 15:35:37]   rows written        : 10,000
+[2026-10-26 15:35:37]   columns written     : 33
+[2026-10-26 15:35:37]   confirmed bookings  : 9,311
+[2026-10-26 15:35:37]   confirmed tickets   : 22,690
+[2026-10-26 15:35:37]   confirmed revenue   : INR 10,787,567
+[2026-10-26 15:35:37]   cancellation rate   : 6.89%
+[2026-10-26 15:35:37]   mean occupancy (per show): 0.402
+[2026-10-26 15:35:37]   clean file          : D:\chinmay\movie-ticket-booking-analytics\data\clean\bookings_clean.csv
+[2026-10-26 15:35:37]   raw SHA256 (unchanged): 4130a03d818488c5b97ad8aa9016e4c345569e30a19e3204b54ad8f300186963
