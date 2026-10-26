@@ -1,0 +1,77 @@
+{
+  "seed": 42,
+  "generated_at": "2026-10-26 15:04:31",
+  "period": {
+    "start": "2025-10-01",
+    "end": "2026-09-30"
+  },
+  "rows_written_to_raw": 10300,
+  "clean_bookings": 10000,
+  "unique_booking_ids": 10000,
+  "unique_customers": 3480,
+  "unique_shows": 290,
+  "theatres": 16,
+  "screens": 80,
+  "movies": 22,
+  "tickets_confirmed": 22690,
+  "revenue_confirmed_inr": 10787567,
+  "avg_booking_value_inr": 1158.58,
+  "cancellation_rate_pct": 6.89,
+  "aggregate_occupancy_pct": 40.94,
+  "customers_by_type": {
+    "Returning": 1507,
+    "Loyal": 883,
+    "New": 1090
+  },
+  "bookings_by_type": {
+    "New": 1090,
+    "Returning": 3581,
+    "Loyal": 5329
+  },
+  "bookings_by_city": {
+    "Pune": 1151,
+    "Kolkata": 941,
+    "Hyderabad": 1125,
+    "Chennai": 1222,
+    "Bengaluru": 1162,
+    "Mumbai": 1889,
+    "Delhi": 1665,
+    "Ahmedabad": 845
+  },
+  "bookings_by_language": {
+    "Telugu": 1644,
+    "Hindi": 5885,
+    "Tamil": 2471
+  },
+  "bookings_by_ticket_type": {
+    "Standard": 6061,
+    "Premium": 2962,
+    "Recliner": 977
+  },
+  "bookings_by_month": {
+    "2025-10": 783,
+    "2025-11": 905,
+    "2025-12": 1121,
+    "2026-01": 568,
+    "2026-02": 671,
+    "2026-03": 737,
+    "2026-04": 979,
+    "2026-05": 1264,
+    "2026-06": 917,
+    "2026-07": 555,
+    "2026-08": 874,
+    "2026-09": 626
+  },
+  "injected_defects": {
+    "missing_email": 60,
+    "missing_phone": 60,
+    "missing_age_group": 50,
+    "missing_promo_code": 50,
+    "bad_ticket_price": 50,
+    "bad_show_time": 30,
+    "bad_show_date": 20,
+    "bad_rating": 10,
+    "bad_age": 10,
+    "duplicate_rows": 300
+  }
+}

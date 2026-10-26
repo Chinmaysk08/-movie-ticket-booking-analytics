@@ -1,0 +1,30 @@
+-- DAX Measures for Power BI
+
+-- KPI Measures
+Total Revenue = CALCULATE(SUM(fact_bookings[total_amount]), fact_bookings[booking_status]="Confirmed")
+
+Total Bookings = COUNTROWS(fact_bookings)
+
+Confirmed Bookings = CALCULATE(COUNTROWS(fact_bookings), fact_bookings[booking_status]="Confirmed")
+
+Cancelled Bookings = CALCULATE(COUNTROWS(fact_bookings), fact_bookings[booking_status]="Cancelled")
+
+Tickets Sold = CALCULATE(SUM(fact_bookings[seats]), fact_bookings[booking_status]="Confirmed")
+
+Avg Ticket Price = DIVIDE([Tickets Sold], [Confirmed Bookings], 0)
+
+Avg Booking Value = DIVIDE([Total Revenue], [Confirmed Bookings], 0)
+
+Cancellation Rate % = DIVIDE([Cancelled Bookings], [Total Bookings], 0) * 100
+
+Total Discount = CALCULATE(SUM(fact_bookings[discount_amount]), fact_bookings[booking_status]="Confirmed")
+
+-- Time Intelligence
+Revenue YTD = CALCULATE([Total Revenue], DATESYTD(dim_date[full_date]))
+
+Revenue MTD = CALCULATE([Total Revenue], DATESMTD(dim_date[full_date]))
+
+-- Dynamic Measures
+Revenue by City = CALCULATE([Total Revenue], ALLEXCEPT(dim_customer, dim_customer[city]))
+
+Occupancy Indicator = IF([Tickets Sold] > 1000, "High", IF([Tickets Sold] > 500, "Medium", "Low"))

@@ -1,0 +1,8 @@
+[2026-10-26 14:07:42] Reading D:\chinmay\movie-ticket-booking-analytics\data\raw\bookings_raw.csv
+[2026-10-26 14:07:42] Original rows: 10300
+[2026-10-26 14:07:43] Removed duplicates: 300. Rows now: 10000
+[2026-10-26 14:07:43] Nulls/empty fixed: 200
+[2026-10-26 14:07:43] Clean rows: 10000
+[2026-10-26 14:07:44] Wrote clean CSV to D:\chinmay\movie-ticket-booking-analytics\data\clean\bookings_clean.csv
+[2026-10-26 14:07:44] Top cities: [('Bengaluru', 3014), ('Delhi', 1053), ('Chennai', 1025), ('Hyderabad', 992), ('Mumbai', 991)]
+[2026-10-26 14:07:44] Confirmed revenue: INR 12,318,867
