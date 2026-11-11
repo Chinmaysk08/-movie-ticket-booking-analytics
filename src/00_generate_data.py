@@ -172,19 +172,28 @@ MOVIES = [
      "rating": 7.6, "release": date(2026, 5, 8), "popularity": 1.00},
     {"title": "Suryodayam", "genre": "Drama", "language": "Telugu",
      "rating": 7.8, "release": date(2026, 8, 14), "popularity": 0.95},
+    # Recent Blockbusters
+    {"title": "KGF Chapter 2", "genre": "Action", "language": "Kannada",
+     "rating": 8.4, "release": date(2026, 4, 14), "popularity": 1.35},
+    {"title": "Pushpa 2: The Rule", "genre": "Action", "language": "Telugu",
+     "rating": 8.6, "release": date(2026, 5, 1), "popularity": 1.40},
+    {"title": "War 2", "genre": "Action", "language": "Hindi",
+     "rating": 8.2, "release": date(2026, 6, 20), "popularity": 1.30},
+    {"title": "Animal", "genre": "Action", "language": "Hindi",
+     "rating": 8.3, "release": date(2026, 7, 5), "popularity": 1.25},
 ]
 
 # Language demand differs by city. These weights make the data more realistic
 # and let us analyse language preferences by city later.
 CITY_LANGUAGE_WEIGHTS = {
-    "Mumbai": {"Hindi": 0.70, "Tamil": 0.15, "Telugu": 0.15},
-    "Delhi": {"Hindi": 0.75, "Tamil": 0.12, "Telugu": 0.13},
-    "Bengaluru": {"Hindi": 0.30, "Tamil": 0.35, "Telugu": 0.35},
-    "Hyderabad": {"Hindi": 0.20, "Tamil": 0.20, "Telugu": 0.60},
-    "Chennai": {"Hindi": 0.15, "Tamil": 0.70, "Telugu": 0.15},
-    "Pune": {"Hindi": 0.70, "Tamil": 0.15, "Telugu": 0.15},
-    "Kolkata": {"Hindi": 0.75, "Tamil": 0.12, "Telugu": 0.13},
-    "Ahmedabad": {"Hindi": 0.80, "Tamil": 0.10, "Telugu": 0.10},
+    "Mumbai": {"Hindi": 0.65, "Tamil": 0.15, "Telugu": 0.12, "Kannada": 0.08},
+    "Delhi": {"Hindi": 0.70, "Tamil": 0.12, "Telugu": 0.10, "Kannada": 0.08},
+    "Bengaluru": {"Hindi": 0.25, "Tamil": 0.25, "Telugu": 0.20, "Kannada": 0.30},
+    "Hyderabad": {"Hindi": 0.18, "Tamil": 0.18, "Telugu": 0.52, "Kannada": 0.12},
+    "Chennai": {"Hindi": 0.14, "Tamil": 0.65, "Telugu": 0.12, "Kannada": 0.09},
+    "Pune": {"Hindi": 0.65, "Tamil": 0.15, "Telugu": 0.12, "Kannada": 0.08},
+    "Kolkata": {"Hindi": 0.70, "Tamil": 0.12, "Telugu": 0.10, "Kannada": 0.08},
+    "Ahmedabad": {"Hindi": 0.76, "Tamil": 0.10, "Telugu": 0.08, "Kannada": 0.06},
 }
 
 # ---------------------------------------------------------------------------
@@ -370,11 +379,35 @@ def build_customers() -> list:
     return customers
 
 
+def recency_boost(movie: dict, show_date: date) -> float:
+    """
+    New releases take a larger share of screens in their opening weeks.
+
+    Real multiplexes give a fresh blockbuster most of the prime slots for
+    roughly six weeks, then rotate it down as the next release arrives. Without
+    this, a film that releases late in the year only has a few show slots left
+    and looks artificially unpopular.
+    """
+    days_since_release = (show_date - movie["release"]).days
+    if days_since_release <= 14:
+        return 5.0
+    if days_since_release <= 45:
+        return 3.0
+    if days_since_release <= 90:
+        return 1.6
+    return 1.0
+
+
 def choose_movie(city: str, show_date: date) -> dict:
     """Pick a movie that has already released and suits the city's languages."""
     eligible = [m for m in MOVIES if m["release"] <= show_date]
     language_weights = CITY_LANGUAGE_WEIGHTS[city]
-    weights = [language_weights[m["language"]] * m["popularity"] for m in eligible]
+    weights = [
+        language_weights[m["language"]]
+        * m["popularity"]
+        * recency_boost(m, show_date)
+        for m in eligible
+    ]
     return random.choices(eligible, weights=weights, k=1)[0]
 
 

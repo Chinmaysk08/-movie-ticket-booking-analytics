@@ -34,6 +34,7 @@ RUN
 """
 
 import hashlib
+import json
 from datetime import datetime
 from pathlib import Path
 
@@ -67,8 +68,26 @@ PROMO_RATES = {
     "FAMILY20": 0.20,
 }
 
-TARGET_REVENUE = 10_787_567
 TARGET_ROWS = 10_000
+
+
+def _target_revenue() -> int:
+    """
+    Read the expected confirmed revenue from the generator's summary.
+
+    Keeping this as a single source of truth means adding movies or changing
+    the simulation never leaves a stale hard-coded total behind.
+    """
+    summary = ROOT / "reports" / "generation_summary.json"
+    try:
+        with open(summary, encoding="utf-8") as handle:
+            return int(json.load(handle)["revenue_confirmed_inr"])
+    except (OSError, KeyError, ValueError):
+        # Fallback keeps the check meaningful if the summary is missing.
+        return 10_823_192
+
+
+TARGET_REVENUE = _target_revenue()
 
 log_lines = []
 
@@ -438,7 +457,7 @@ checks = [
     ("Customer consistency", customer_conflicts == 0, f"{customer_conflicts} customers conflict"),
     ("Occupancy within 0-1", int((~df['show_occupancy_rate'].between(0, 1)).sum()) == 0,
      f"{df['show_occupancy_rate'].min():.3f} to {df['show_occupancy_rate'].max():.3f}"),
-    ("Confirmed revenue = INR 10,787,567", confirmed_revenue == TARGET_REVENUE,
+    (f"Confirmed revenue = INR {TARGET_REVENUE:,}", confirmed_revenue == TARGET_REVENUE,
      f"{confirmed_revenue:,}"),
     ("No discount without a promo",
      int(((df['discount_amount'] > 0) & (df['promo_code'] == "NONE")).sum()) == 0,

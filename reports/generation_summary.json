@@ -1,6 +1,6 @@
 {
   "seed": 42,
-  "generated_at": "2026-10-26 15:04:31",
+  "generated_at": "2026-11-11 14:08:49",
   "period": {
     "start": "2025-10-01",
     "end": "2026-09-30"
@@ -8,59 +8,60 @@
   "rows_written_to_raw": 10300,
   "clean_bookings": 10000,
   "unique_booking_ids": 10000,
-  "unique_customers": 3480,
+  "unique_customers": 3499,
   "unique_shows": 290,
   "theatres": 16,
   "screens": 80,
-  "movies": 22,
-  "tickets_confirmed": 22690,
-  "revenue_confirmed_inr": 10787567,
-  "avg_booking_value_inr": 1158.58,
-  "cancellation_rate_pct": 6.89,
-  "aggregate_occupancy_pct": 40.94,
+  "movies": 26,
+  "tickets_confirmed": 22920,
+  "revenue_confirmed_inr": 10823192,
+  "avg_booking_value_inr": 1159.92,
+  "cancellation_rate_pct": 6.69,
+  "aggregate_occupancy_pct": 42.14,
   "customers_by_type": {
-    "Returning": 1507,
-    "Loyal": 883,
-    "New": 1090
+    "Loyal": 860,
+    "Returning": 1527,
+    "New": 1112
   },
   "bookings_by_type": {
-    "New": 1090,
-    "Returning": 3581,
-    "Loyal": 5329
+    "New": 1112,
+    "Returning": 3653,
+    "Loyal": 5235
   },
   "bookings_by_city": {
-    "Pune": 1151,
-    "Kolkata": 941,
-    "Hyderabad": 1125,
-    "Chennai": 1222,
-    "Bengaluru": 1162,
-    "Mumbai": 1889,
-    "Delhi": 1665,
-    "Ahmedabad": 845
+    "Chennai": 1218,
+    "Bengaluru": 1376,
+    "Delhi": 1608,
+    "Ahmedabad": 756,
+    "Kolkata": 781,
+    "Mumbai": 1645,
+    "Pune": 988,
+    "Hyderabad": 1628
   },
   "bookings_by_language": {
-    "Telugu": 1644,
-    "Hindi": 5885,
-    "Tamil": 2471
+    "Tamil": 2464,
+    "Hindi": 5708,
+    "Telugu": 1481,
+    "Kannada": 347
   },
   "bookings_by_ticket_type": {
-    "Standard": 6061,
-    "Premium": 2962,
-    "Recliner": 977
+    "Standard": 5915,
+    "Premium": 3079,
+    "Recliner": 1006
   },
   "bookings_by_month": {
-    "2025-10": 783,
-    "2025-11": 905,
-    "2025-12": 1121,
-    "2026-01": 568,
-    "2026-02": 671,
-    "2026-03": 737,
-    "2026-04": 979,
-    "2026-05": 1264,
-    "2026-06": 917,
-    "2026-07": 555,
-    "2026-08": 874,
-    "2026-09": 626
+    "2025-10": 715,
+    "2025-11": 927,
+    "2025-12": 911,
+    "2026-01": 852,
+    "2026-02": 610,
+    "2026-03": 1029,
+    "2026-04": 889,
+    "2026-05": 836,
+    "2026-06": 1006,
+    "2026-07": 844,
+    "2026-08": 808,
+    "2026-09": 573
   },
   "injected_defects": {
     "missing_email": 60,

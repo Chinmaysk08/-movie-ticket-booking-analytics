@@ -6,7 +6,7 @@ WHAT THIS SCRIPT DOES
 ---------------------
 1. Parses `sql/03_analysis_queries.sql` into 25 named queries.
 2. Executes each one against Oracle.
-3. Checks that every revenue slice sums back to INR 10,787,567.
+3. Checks that every revenue slice sums back to the generator's confirmed total.
 4. Writes `reports/sql_results.md` with the real output of every query.
 
 WHY GENERATE THE REPORT
@@ -21,6 +21,7 @@ RUN
     D:\\venvs\\cinema\\Scripts\\python.exe src\\04_run_sql_queries.py
 """
 
+import json
 import re
 from datetime import datetime
 from decimal import Decimal
@@ -32,7 +33,14 @@ ROOT = Path(__file__).resolve().parents[1]
 QUERY_FILE = ROOT / "sql" / "03_analysis_queries.sql"
 REPORT = ROOT / "reports" / "sql_results.md"
 
-TARGET_REVENUE = 10_787_567
+
+def _target_revenue() -> int:
+    """Read the expected confirmed revenue from the generator's summary."""
+    with open(ROOT / "reports" / "generation_summary.json", encoding="utf-8") as handle:
+        return int(json.load(handle)["revenue_confirmed_inr"])
+
+
+TARGET_REVENUE = _target_revenue()
 
 # Queries whose `revenue_inr` column covers the whole confirmed population and
 # must therefore sum to the same total. Top-N queries are excluded on purpose.
@@ -216,7 +224,7 @@ def main() -> None:
         "slice must still add up to the same total — if one does not, the query has",
         "a join or filter bug.",
         "",
-        "| Query | Slice | Rows | `revenue_inr` sum | Matches ₹10,787,567 |",
+        f"| Query | Slice | Rows | `revenue_inr` sum | Matches ₹{TARGET_REVENUE:,} |",
         "|---|---|---:|---:|---|",
     ]
     for number, title, row_count, total, passed in reconciliation:

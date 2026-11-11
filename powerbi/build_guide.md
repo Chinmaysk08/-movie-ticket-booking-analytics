@@ -20,13 +20,13 @@ $env:PYTHONPATH = "D:\chinmay\movie-ticket-booking-analytics\src"
 D:\venvs\cinema\Scripts\python.exe src\05_export_powerbi.py
 ```
 
-Expected export (verified 2026-10-26):
+Expected export (verified 2026-11-11):
 
 | File | Rows |
 |---|---:|
 | `fact_bookings.csv` | 10,000 |
-| `dim_customer.csv` | 3,480 |
-| `dim_movie.csv` | 22 |
+| `dim_customer.csv` | 3,499 |
+| `dim_movie.csv` | 26 |
 | `dim_theatre.csv` | 16 |
 | `dim_show.csv` | 290 |
 | `dim_date.csv` | 365 |
@@ -92,11 +92,11 @@ The five reconciliation anchors are:
 
 | Measure | Expected |
 |---|---:|
-| Total Revenue | ₹10,787,567 |
-| Tickets Sold | 22,690 |
-| Confirmed Bookings | 9,311 |
-| Cancellation Rate % | 6.89 |
-| Mean Show Occupancy % | 40.18 |
+| Total Revenue | ₹10,823,192 |
+| Tickets Sold | 22,920 |
+| Confirmed Bookings | 9,331 |
+| Cancellation Rate % | 6.69 |
+| Mean Show Occupancy % | 41.23 |
 
 If any card disagrees, the relationship or the Confirmed filter is wrong.
 
@@ -163,6 +163,6 @@ If any card disagrees, the relationship or the Confirmed filter is wrong.
 2. Check the five anchors in section 3.
 3. Check that the page-level totals still reconcile after each slicer:
    selecting a city must reduce revenue, but the **unfiltered** total must stay
-   ₹10,787,567.
+   ₹10,823,192.
 4. Take screenshots for the README (`reports/figures/powerbi_*.png`).
 5. Only then commit the `.pbix` (it is a binary file; keep it under 25 MB).

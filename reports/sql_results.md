@@ -1,6 +1,6 @@
 # SQL Analysis Results — dataset v2
 
-Generated: 2026-10-26 16:05:25
+Generated: 2026-11-11 14:11:38
 
 | Item | Value |
 |---|---|
@@ -8,7 +8,7 @@ Generated: 2026-10-26 16:05:25
 | Query file | `sql/03_analysis_queries.sql` |
 | Queries executed | 25 |
 | Queries with errors | 0 |
-| Revenue target | ₹10,787,567 |
+| Revenue target | ₹10,823,192 |
 
 > ⚠️ All data is **synthetic**. These results demonstrate analytical method,
 > not real cinema performance.
@@ -19,28 +19,28 @@ Every query below slices the confirmed population a different way. Each
 slice must still add up to the same total — if one does not, the query has
 a join or filter bug.
 
-| Query | Slice | Rows | `revenue_inr` sum | Matches ₹10,787,567 |
+| Query | Slice | Rows | `revenue_inr` sum | Matches ₹10,823,192 |
 |---|---|---:|---:|---|
-| Q1 | Overall KPIs | 1 | 10,787,567 | ✅ |
-| Q2 | Monthly revenue trend | 12 | 10,787,567 | ✅ |
-| Q4 | City performance | 8 | 10,787,567 | ✅ |
-| Q5 | Revenue by day of week | 7 | 10,787,567 | ✅ |
-| Q6 | Show-time performance | 6 | 10,787,567 | ✅ |
-| Q7 | Genre performance | 8 | 10,787,567 | ✅ |
-| Q8 | Language distribution | 3 | 10,787,567 | ✅ |
-| Q9 | Payment method split | 5 | 10,787,567 | ✅ |
-| Q10 | Booking channel performance | 4 | 10,787,567 | ✅ |
-| Q12 | Promo code effectiveness | 5 | 10,787,567 | ✅ |
-| Q13 | Age-group analysis | 5 | 10,787,567 | ✅ |
-| Q14 | Screen and format performance | 5 | 10,787,567 | ✅ |
-| Q16 | Running monthly revenue (window function) | 12 | 10,787,567 | ✅ |
-| Q17 | Month-over-month growth (LAG) | 12 | 10,787,567 | ✅ |
-| Q18 | Weekend vs weekday | 2 | 10,787,567 | ✅ |
-| Q21 | Customer segments (New / Returning / Loyal) | 3 | 10,787,567 | ✅ |
-| Q22 | Theatre performance | 16 | 10,787,567 | ✅ |
-| Q23 | Ticket-type profitability | 3 | 10,787,567 | ✅ |
-| Q24 | Revenue concentration (Pareto) | 22 | 10,787,567 | ✅ |
-| Q25 | Does a higher rating mean more bookings? | 22 | 10,787,567 | ✅ |
+| Q1 | Overall KPIs | 1 | 10,823,192 | ✅ |
+| Q2 | Monthly revenue trend | 12 | 10,823,192 | ✅ |
+| Q4 | City performance | 8 | 10,823,192 | ✅ |
+| Q5 | Revenue by day of week | 7 | 10,823,192 | ✅ |
+| Q6 | Show-time performance | 6 | 10,823,192 | ✅ |
+| Q7 | Genre performance | 8 | 10,823,192 | ✅ |
+| Q8 | Language distribution | 4 | 10,823,192 | ✅ |
+| Q9 | Payment method split | 5 | 10,823,192 | ✅ |
+| Q10 | Booking channel performance | 4 | 10,823,192 | ✅ |
+| Q12 | Promo code effectiveness | 5 | 10,823,192 | ✅ |
+| Q13 | Age-group analysis | 5 | 10,823,192 | ✅ |
+| Q14 | Screen and format performance | 5 | 10,823,192 | ✅ |
+| Q16 | Running monthly revenue (window function) | 12 | 10,823,192 | ✅ |
+| Q17 | Month-over-month growth (LAG) | 12 | 10,823,192 | ✅ |
+| Q18 | Weekend vs weekday | 2 | 10,823,192 | ✅ |
+| Q21 | Customer segments (New / Returning / Loyal) | 3 | 10,823,192 | ✅ |
+| Q22 | Theatre performance | 16 | 10,823,192 | ✅ |
+| Q23 | Ticket-type profitability | 3 | 10,823,192 | ✅ |
+| Q24 | Revenue concentration (Pareto) | 26 | 10,823,192 | ✅ |
+| Q25 | Does a higher rating mean more bookings? | 26 | 10,823,192 | ✅ |
 
 ## Query plan example (Q4 — City performance)
 
@@ -54,27 +54,27 @@ Plan hash value: 3064611631
 ---------------------------------------------------------------------------------------------------
 | Id  | Operation                 | Name          | Rows  | Bytes |TempSpc| Cost (%CPU)| Time     |
 ---------------------------------------------------------------------------------------------------
-|   0 | SELECT STATEMENT          |               |  5712K|   539M|       |   128K  (1)| 00:00:06 |
-|   1 |  SORT ORDER BY            |               |  5712K|   539M|   595M|   128K  (1)| 00:00:06 |
-|*  2 |   HASH JOIN               |               |  5712K|   539M|       |   127  (38)| 00:00:01 |
-|   3 |    VIEW                   |               |  9560 |   280K|       |    43   (7)| 00:00:01 |
-|   4 |     HASH GROUP BY         |               |  9560 |   886K|       |    43   (7)| 00:00:01 |
-|*  5 |      HASH JOIN OUTER      |               |  9560 |   886K|       |    42   (5)| 00:00:01 |
+|   0 | SELECT STATEMENT          |               |  5511K|   520M|       |   124K  (1)| 00:00:05 |
+|   1 |  SORT ORDER BY            |               |  5511K|   520M|   574M|   124K  (1)| 00:00:05 |
+|*  2 |   HASH JOIN               |               |  5511K|   520M|       |   125  (36)| 00:00:01 |
+|   3 |    VIEW                   |               |  9391 |   275K|       |    43   (7)| 00:00:01 |
+|   4 |     HASH GROUP BY         |               |  9391 |   871K|       |    43   (7)| 00:00:01 |
+|*  5 |      HASH JOIN OUTER      |               |  9391 |   871K|       |    42   (5)| 00:00:01 |
 |*  6 |       HASH JOIN           |               |   290 | 20010 |       |     6   (0)| 00:00:01 |
 |   7 |        TABLE ACCESS FULL  | DIM_THEATRE   |    16 |   480 |       |     3   (0)| 00:00:01 |
 |   8 |        TABLE ACCESS FULL  | DIM_SHOW      |   290 | 11310 |       |     3   (0)| 00:00:01 |
-|   9 |       VIEW                |               |  9560 |   242K|       |    36   (6)| 00:00:01 |
-|  10 |        HASH GROUP BY      |               |  9560 |   429K|       |    36   (6)| 00:00:01 |
-|  11 |         TABLE ACCESS FULL | FACT_BOOKINGS |  9560 |   429K|       |    34   (0)| 00:00:01 |
-|  12 |    VIEW                   |               |  9560 |   644K|       |    42   (5)| 00:00:01 |
-|  13 |     HASH GROUP BY         |               |  9560 |   644K|       |    42   (5)| 00:00:01 |
-|  14 |      VIEW                 | VW_DAG_0      |  9560 |   644K|       |    42   (5)| 00:00:01 |
-|  15 |       HASH GROUP BY       |               |  9560 |  1316K|       |    42   (5)| 00:00:01 |
-|* 16 |        HASH JOIN          |               |  9560 |  1316K|       |    41   (3)| 00:00:01 |
+|   9 |       VIEW                |               |  9391 |   238K|       |    36   (6)| 00:00:01 |
+|  10 |        HASH GROUP BY      |               |  9391 |   421K|       |    36   (6)| 00:00:01 |
+|  11 |         TABLE ACCESS FULL | FACT_BOOKINGS |  9391 |   421K|       |    34   (0)| 00:00:01 |
+|  12 |    VIEW                   |               |  9391 |   632K|       |    42   (5)| 00:00:01 |
+|  13 |     HASH GROUP BY         |               |  9391 |   632K|       |    42   (5)| 00:00:01 |
+|  14 |      VIEW                 | VW_DAG_0      |  9391 |   632K|       |    42   (5)| 00:00:01 |
+|  15 |       HASH GROUP BY       |               |  9391 |  1293K|       |    42   (5)| 00:00:01 |
+|* 16 |        HASH JOIN          |               |  9391 |  1293K|       |    41   (3)| 00:00:01 |
 |* 17 |         HASH JOIN         |               |   290 | 16240 |       |     6   (0)| 00:00:01 |
 |  18 |          TABLE ACCESS FULL| DIM_THEATRE   |    16 |   480 |       |     3   (0)| 00:00:01 |
 |  19 |          TABLE ACCESS FULL| DIM_SHOW      |   290 |  7540 |       |     3   (0)| 00:00:01 |
-|* 20 |         TABLE ACCESS FULL | FACT_BOOKINGS |  9560 |   793K|       |    34   (0)| 00:00:01 |
+|* 20 |         TABLE ACCESS FULL | FACT_BOOKINGS |  9391 |   779K|       |    34   (0)| 00:00:01 |
 ---------------------------------------------------------------------------------------------------
 
 Predicate Information (identified by operation id):
@@ -112,7 +112,7 @@ FROM fact_bookings
 
 | `total_bookings` | `confirmed_bookings` | `cancelled_bookings` | `confirmed_tickets` | `revenue_inr` | `avg_booking_value_inr` | `cancellation_rate_pct` |
 |---|---|---|---|---|---|---|
-| 10,000 | 9,311 | 689 | 22,690 | 10,787,567 | 1,158.58 | 6.89 |
+| 10,000 | 9,331 | 669 | 22,920 | 10,823,192 | 1,159.92 | 6.69 |
 
 *1 row(s).*
 
@@ -133,18 +133,18 @@ ORDER BY month
 
 | `month` | `bookings` | `tickets` | `revenue_inr` |
 |---|---|---|---|
-| 2025-10 | 783 | 1,762 | 787,741 |
-| 2025-11 | 905 | 2,046 | 1,056,911 |
-| 2025-12 | 1,121 | 2,558 | 1,223,532 |
-| 2026-01 | 568 | 1,276 | 519,563 |
-| 2026-02 | 671 | 1,477 | 636,632 |
-| 2026-03 | 737 | 1,661 | 720,504 |
-| 2026-04 | 979 | 2,171 | 1,131,470 |
-| 2026-05 | 1,264 | 2,901 | 1,591,552 |
-| 2026-06 | 917 | 2,067 | 936,395 |
-| 2026-07 | 555 | 1,299 | 580,324 |
-| 2026-08 | 874 | 2,015 | 948,386 |
-| 2026-09 | 626 | 1,457 | 654,557 |
+| 2025-10 | 715 | 1,724 | 864,461 |
+| 2025-11 | 927 | 2,081 | 1,030,699 |
+| 2025-12 | 911 | 2,152 | 861,389 |
+| 2026-01 | 852 | 1,980 | 975,948 |
+| 2026-02 | 610 | 1,370 | 586,476 |
+| 2026-03 | 1,029 | 2,298 | 1,211,679 |
+| 2026-04 | 889 | 2,030 | 899,032 |
+| 2026-05 | 836 | 1,952 | 852,693 |
+| 2026-06 | 1,006 | 2,262 | 1,183,716 |
+| 2026-07 | 844 | 1,928 | 925,404 |
+| 2026-08 | 808 | 1,830 | 889,971 |
+| 2026-09 | 573 | 1,313 | 541,724 |
 
 *12 row(s).*
 
@@ -175,16 +175,16 @@ FETCH FIRST 10 ROWS ONLY
 
 | `movie_title` | `genre` | `language` | `rating` | `bookings` | `tickets` | `revenue_inr` | `avg_price_per_ticket` |
 |---|---|---|---|---|---|---|---|
-| Dilli Nights | Thriller | Hindi | 8.10 | 1,640 | 3,724 | 1,841,194 | 494.41 |
-| Chandni Chowk Express | Comedy | Hindi | 6.90 | 1,117 | 2,588 | 1,317,244 | 508.98 |
-| Rangmanch | Drama | Hindi | 7.40 | 888 | 1,987 | 957,638 | 481.95 |
-| Kanaka | Action | Tamil | 7.20 | 568 | 1,291 | 793,838 | 614.90 |
-| Antariksh 2050 | Sci-Fi | Hindi | 7.50 | 666 | 1,507 | 717,072 | 475.83 |
-| Aakhri Raasta | Action | Hindi | 7.80 | 644 | 1,442 | 618,015 | 428.58 |
-| Raktham | Action | Telugu | 8 | 500 | 1,117 | 565,851 | 506.58 |
-| Vaanam | Drama | Tamil | 8 | 539 | 1,198 | 552,561 | 461.24 |
-| Pei Veedu | Horror-Comedy | Tamil | 6.80 | 427 | 983 | 437,916 | 445.49 |
-| Mehfil | Romance | Hindi | 7.20 | 432 | 932 | 436,668 | 468.53 |
+| Mehfil | Romance | Hindi | 7.20 | 1,086 | 2,548 | 1,235,373 | 484.84 |
+| Rangmanch | Drama | Hindi | 7.40 | 895 | 2,029 | 969,106 | 477.63 |
+| Aakhri Raasta | Action | Hindi | 7.80 | 686 | 1,584 | 797,699 | 503.60 |
+| Dilli Nights | Thriller | Hindi | 8.10 | 731 | 1,674 | 767,898 | 458.72 |
+| Antariksh 2050 | Sci-Fi | Hindi | 7.50 | 632 | 1,392 | 722,931 | 519.35 |
+| Chandni Chowk Express | Comedy | Hindi | 6.90 | 608 | 1,421 | 617,484 | 434.54 |
+| War 2 | Action | Hindi | 8.20 | 451 | 1,029 | 593,081 | 576.37 |
+| Kadal Nilavu | Romance | Tamil | 7.10 | 574 | 1,370 | 591,006 | 431.39 |
+| KGF Chapter 2 | Action | Kannada | 8.40 | 347 | 771 | 420,538 | 545.44 |
+| Iravu Payanam | Thriller | Tamil | 7.90 | 376 | 895 | 414,638 | 463.28 |
 
 *10 row(s).*
 
@@ -223,14 +223,14 @@ ORDER BY cf.revenue_inr DESC
 
 | `city` | `bookings` | `tickets` | `revenue_inr` | `revenue_per_show` | `avg_occupancy_pct` |
 |---|---|---|---|---|---|
-| Mumbai | 1,889 | 4,312 | 2,587,211 | 50,729.63 | 38.53 |
-| Delhi | 1,665 | 3,632 | 1,754,679 | 35,809.78 | 40.57 |
-| Chennai | 1,222 | 2,823 | 1,333,873 | 39,231.56 | 45.76 |
-| Pune | 1,151 | 2,667 | 1,270,141 | 43,797.97 | 42.24 |
-| Bengaluru | 1,162 | 2,685 | 1,225,897 | 29,899.93 | 35.09 |
-| Hyderabad | 1,125 | 2,561 | 1,024,790 | 28,466.39 | 38.72 |
-| Kolkata | 941 | 2,070 | 826,646 | 33,065.84 | 41.59 |
-| Ahmedabad | 845 | 1,940 | 764,330 | 30,573.20 | 41.87 |
+| Mumbai | 1,645 | 3,807 | 2,035,068 | 39,903.29 | 41.01 |
+| Delhi | 1,608 | 3,738 | 1,850,424 | 37,763.76 | 39.62 |
+| Hyderabad | 1,628 | 3,625 | 1,821,146 | 50,587.39 | 46.86 |
+| Bengaluru | 1,376 | 3,085 | 1,421,750 | 34,676.83 | 38.11 |
+| Chennai | 1,218 | 2,798 | 1,277,025 | 37,559.56 | 44.37 |
+| Pune | 988 | 2,306 | 1,094,618 | 37,745.45 | 39.91 |
+| Ahmedabad | 756 | 1,746 | 705,701 | 28,228.04 | 37.69 |
+| Kolkata | 781 | 1,815 | 617,460 | 24,698.40 | 42.67 |
 
 *8 row(s).*
 
@@ -252,13 +252,13 @@ ORDER BY d.day_of_week
 
 | `day_name` | `day_of_week` | `bookings` | `tickets` | `revenue_inr` |
 |---|---|---|---|---|
-| Monday | 1 | 1,271 | 2,949 | 1,431,892 |
-| Tuesday | 2 | 1,552 | 3,514 | 1,621,251 |
-| Wednesday | 3 | 979 | 2,188 | 885,199 |
-| Thursday | 4 | 1,291 | 2,906 | 1,300,983 |
-| Friday | 5 | 1,599 | 3,678 | 1,657,870 |
-| Saturday | 6 | 1,595 | 3,604 | 1,889,943 |
-| Sunday | 7 | 1,713 | 3,851 | 2,000,429 |
+| Monday | 1 | 959 | 2,171 | 908,582 |
+| Tuesday | 2 | 1,232 | 2,810 | 1,171,475 |
+| Wednesday | 3 | 1,312 | 3,006 | 1,348,743 |
+| Thursday | 4 | 1,440 | 3,296 | 1,567,473 |
+| Friday | 5 | 1,702 | 3,977 | 2,060,831 |
+| Saturday | 6 | 1,954 | 4,475 | 2,141,435 |
+| Sunday | 7 | 1,401 | 3,185 | 1,624,653 |
 
 *7 row(s).*
 
@@ -296,12 +296,12 @@ ORDER BY sf.show_time
 
 | `show_time` | `shows` | `bookings` | `tickets` | `revenue_inr` | `avg_occupancy_pct` |
 |---|---|---|---|---|---|
-| 09:00 | 25 | 376 | 847 | 379,343 | 17.49 |
-| 12:15 | 45 | 1,017 | 2,378 | 861,524 | 30.23 |
-| 15:30 | 57 | 1,631 | 3,761 | 1,727,621 | 33.75 |
-| 18:45 | 72 | 3,312 | 7,507 | 3,708,600 | 53.32 |
-| 21:30 | 61 | 3,054 | 6,894 | 3,499,681 | 56.80 |
-| 23:45 | 30 | 610 | 1,303 | 610,798 | 20.92 |
+| 09:00 | 26 | 487 | 1,079 | 489,282 | 19.94 |
+| 12:15 | 44 | 969 | 2,258 | 948,111 | 27.42 |
+| 15:30 | 49 | 1,475 | 3,345 | 1,449,872 | 35.79 |
+| 18:45 | 78 | 3,413 | 7,899 | 3,915,591 | 53.82 |
+| 21:30 | 63 | 3,038 | 6,955 | 3,412,318 | 56.24 |
+| 23:45 | 30 | 618 | 1,384 | 608,018 | 24.60 |
 
 *6 row(s).*
 
@@ -328,14 +328,14 @@ ORDER BY revenue_inr DESC
 
 | `genre` | `bookings` | `tickets` | `revenue_inr` | `avg_price_per_ticket` |
 |---|---|---|---|---|
-| Action | 2,098 | 4,705 | 2,303,740 | 489.64 |
-| Thriller | 1,851 | 4,237 | 2,133,426 | 503.52 |
-| Drama | 1,933 | 4,357 | 2,017,064 | 462.95 |
-| Comedy | 1,489 | 3,438 | 1,724,460 | 501.59 |
-| Romance | 1,038 | 2,326 | 1,031,916 | 443.64 |
-| Sci-Fi | 666 | 1,507 | 717,072 | 475.83 |
-| Horror-Comedy | 427 | 983 | 437,916 | 445.49 |
-| Historical | 498 | 1,137 | 421,973 | 371.13 |
+| Action | 2,836 | 6,481 | 3,266,808 | 504.06 |
+| Romance | 1,957 | 4,605 | 2,191,003 | 475.79 |
+| Drama | 1,921 | 4,372 | 1,968,449 | 450.24 |
+| Thriller | 1,124 | 2,609 | 1,196,516 | 458.61 |
+| Comedy | 920 | 2,121 | 900,023 | 424.34 |
+| Sci-Fi | 632 | 1,392 | 722,931 | 519.35 |
+| Historical | 349 | 743 | 335,559 | 451.63 |
+| Horror-Comedy | 261 | 597 | 241,903 | 405.20 |
 
 *8 row(s).*
 
@@ -360,11 +360,12 @@ ORDER BY revenue_inr DESC
 
 | `language` | `bookings` | `tickets` | `revenue_inr` | `revenue_share_pct` |
 |---|---|---|---|---|
-| Hindi | 5,885 | 13,308 | 6,389,739 | 59.23 |
-| Tamil | 2,471 | 5,589 | 2,699,756 | 25.03 |
-| Telugu | 1,644 | 3,793 | 1,698,072 | 15.74 |
+| Hindi | 5,708 | 13,097 | 6,312,742 | 58.33 |
+| Tamil | 2,464 | 5,722 | 2,511,421 | 23.20 |
+| Telugu | 1,481 | 3,330 | 1,578,491 | 14.58 |
+| Kannada | 347 | 771 | 420,538 | 3.89 |
 
-*3 row(s).*
+*4 row(s).*
 
 ### Q9 — Payment method split
 
@@ -383,11 +384,11 @@ ORDER BY revenue_inr DESC
 
 | `payment_method` | `bookings` | `revenue_inr` | `pct_of_bookings` |
 |---|---|---|---|
-| UPI | 4,175 | 4,540,212 | 41.75 |
-| Credit Card | 2,271 | 2,425,426 | 22.71 |
-| Debit Card | 1,760 | 1,920,356 | 17.60 |
-| NetBanking | 944 | 1,016,817 | 9.44 |
-| Wallet | 850 | 884,756 | 8.50 |
+| UPI | 4,307 | 4,714,215 | 43.07 |
+| Credit Card | 2,263 | 2,451,679 | 22.63 |
+| Debit Card | 1,668 | 1,833,988 | 16.68 |
+| NetBanking | 914 | 960,521 | 9.14 |
+| Wallet | 848 | 862,789 | 8.48 |
 
 *5 row(s).*
 
@@ -410,10 +411,10 @@ ORDER BY revenue_inr DESC
 
 | `booking_channel` | `bookings` | `revenue_inr` | `cancelled_bookings` | `cancellation_rate_pct` |
 |---|---|---|---|---|
-| Mobile App | 4,508 | 4,949,295 | 251 | 5.57 |
-| Website | 2,990 | 3,242,844 | 161 | 5.38 |
-| Third-Party | 1,458 | 1,469,875 | 186 | 12.76 |
-| Kiosk | 1,044 | 1,125,553 | 91 | 8.72 |
+| Mobile App | 4,466 | 4,872,737 | 234 | 5.24 |
+| Website | 2,986 | 3,302,602 | 164 | 5.49 |
+| Third-Party | 1,501 | 1,541,805 | 190 | 12.66 |
+| Kiosk | 1,047 | 1,106,048 | 81 | 7.74 |
 
 *4 row(s).*
 
@@ -436,14 +437,14 @@ ORDER BY cancellation_rate_pct DESC
 
 | `city` | `total_bookings` | `cancelled` | `cancellation_rate_pct` |
 |---|---|---|---|
-| Delhi | 1,665 | 135 | 8.11 |
-| Ahmedabad | 845 | 62 | 7.34 |
-| Hyderabad | 1,125 | 80 | 7.11 |
-| Pune | 1,151 | 76 | 6.60 |
-| Chennai | 1,222 | 80 | 6.55 |
-| Bengaluru | 1,162 | 76 | 6.54 |
-| Kolkata | 941 | 61 | 6.48 |
-| Mumbai | 1,889 | 119 | 6.30 |
+| Ahmedabad | 756 | 60 | 7.94 |
+| Delhi | 1,608 | 115 | 7.15 |
+| Pune | 988 | 66 | 6.68 |
+| Hyderabad | 1,628 | 108 | 6.63 |
+| Bengaluru | 1,376 | 91 | 6.61 |
+| Mumbai | 1,645 | 107 | 6.50 |
+| Chennai | 1,218 | 79 | 6.49 |
+| Kolkata | 781 | 43 | 5.51 |
 
 *8 row(s).*
 
@@ -469,11 +470,11 @@ ORDER BY revenue_inr DESC
 
 | `promo_code` | `bookings` | `confirmed_bookings` | `revenue_inr` | `discount_inr` | `avg_discount_inr` | `discount_pct_of_gross` |
 |---|---|---|---|---|---|---|
-| NONE | 6,962 | 6,490 | 7,796,592 | 0 | 0 | 0 |
-| WEEKEND10 | 1,027 | 952 | 996,304 | 107,255 | 112.66 | 10 |
-| FIRSTBUY5 | 812 | 753 | 865,734 | 44,274 | 58.80 | 5 |
-| STUDENT15 | 688 | 633 | 665,886 | 113,891 | 179.92 | 15 |
-| FAMILY20 | 511 | 483 | 463,051 | 111,824 | 231.52 | 20 |
+| NONE | 7,006 | 6,524 | 7,802,713 | 0 | 0 | 0 |
+| WEEKEND10 | 982 | 920 | 1,018,808 | 109,905 | 119.46 | 10 |
+| FIRSTBUY5 | 772 | 721 | 808,876 | 41,347 | 57.35 | 5 |
+| STUDENT15 | 724 | 680 | 708,592 | 121,204 | 178.24 | 15 |
+| FAMILY20 | 516 | 486 | 484,203 | 117,122 | 240.99 | 20 |
 
 *5 row(s).*
 
@@ -496,11 +497,11 @@ ORDER BY c.age_group
 
 | `age_group` | `bookings` | `tickets` | `revenue_inr` | `avg_booking_value_inr` |
 |---|---|---|---|---|
-| 18-24 | 2,180 | 4,936 | 2,337,702 | 1,140.90 |
-| 25-34 | 3,020 | 6,830 | 3,231,339 | 1,153.64 |
-| 35-44 | 2,370 | 5,375 | 2,532,224 | 1,152.58 |
-| 45-54 | 1,607 | 3,690 | 1,800,397 | 1,196.28 |
-| 55+ | 823 | 1,859 | 885,905 | 1,167.20 |
+| 18-24 | 2,167 | 4,972 | 2,362,903 | 1,163.99 |
+| 25-34 | 3,136 | 7,206 | 3,408,165 | 1,165.98 |
+| 35-44 | 2,266 | 5,183 | 2,431,559 | 1,148.59 |
+| 45-54 | 1,595 | 3,647 | 1,711,305 | 1,153.95 |
+| 55+ | 836 | 1,912 | 909,260 | 1,168.71 |
 
 *5 row(s).*
 
@@ -523,11 +524,11 @@ ORDER BY revenue_inr DESC
 
 | `screen` | `format` | `shows` | `bookings` | `tickets` | `revenue_inr` |
 |---|---|---|---|---|---|
-| Screen 1 | IMAX | 58 | 3,437 | 7,831 | 5,276,756 |
-| Screen 2 | 3D | 53 | 2,019 | 4,578 | 1,983,301 |
-| Screen 4 | 2D | 68 | 1,770 | 4,052 | 1,349,275 |
-| Screen 3 | 2D | 47 | 1,504 | 3,358 | 1,203,516 |
-| Screen 5 | 2D | 64 | 1,270 | 2,871 | 974,719 |
+| Screen 1 | IMAX | 54 | 3,389 | 7,697 | 5,142,788 |
+| Screen 2 | 3D | 46 | 1,739 | 4,022 | 1,774,313 |
+| Screen 3 | 2D | 68 | 2,070 | 4,742 | 1,677,644 |
+| Screen 4 | 2D | 56 | 1,464 | 3,418 | 1,158,708 |
+| Screen 5 | 2D | 66 | 1,338 | 3,041 | 1,069,739 |
 
 *5 row(s).*
 
@@ -558,30 +559,30 @@ ORDER BY city, city_rank
 
 | `city` | `movie_title` | `bookings` | `revenue_inr` | `city_rank` |
 |---|---|---|---|---|
-| Ahmedabad | Dilli Nights | 229 | 206,725 | 1 |
-| Ahmedabad | Aakhri Raasta | 176 | 181,920 | 2 |
-| Ahmedabad | Chandni Chowk Express | 144 | 121,936 | 3 |
-| Bengaluru | Raktham | 250 | 343,324 | 1 |
-| Bengaluru | Dhoop Chhaon | 105 | 127,248 | 2 |
-| Bengaluru | Golconda | 141 | 119,062 | 3 |
-| Chennai | Kanaka | 408 | 555,667 | 1 |
-| Chennai | Neruppu | 157 | 145,866 | 2 |
-| Chennai | Mehfil | 71 | 97,943 | 3 |
-| Delhi | Dilli Nights | 395 | 452,755 | 1 |
-| Delhi | Chandni Chowk Express | 286 | 348,715 | 2 |
-| Delhi | Rangmanch | 215 | 271,489 | 3 |
-| Hyderabad | Vennela | 186 | 158,491 | 1 |
-| Hyderabad | Vaanam | 119 | 149,868 | 2 |
-| Hyderabad | Golconda | 167 | 141,557 | 3 |
-| Kolkata | Dilli Nights | 273 | 298,043 | 1 |
-| Kolkata | Chandni Chowk Express | 193 | 191,413 | 2 |
-| Kolkata | Neruppu | 110 | 80,382 | 3 |
-| Mumbai | Dilli Nights | 453 | 642,793 | 1 |
-| Mumbai | Chandni Chowk Express | 242 | 415,947 | 2 |
-| Mumbai | Antariksh 2050 | 179 | 249,827 | 3 |
-| Pune | Kadal Nilavu | 185 | 237,843 | 1 |
-| Pune | Antariksh 2050 | 169 | 197,867 | 2 |
-| Pune | Rangmanch | 137 | 162,486 | 3 |
+| Ahmedabad | Aakhri Raasta | 149 | 183,969 | 1 |
+| Ahmedabad | Mehfil | 202 | 156,502 | 2 |
+| Ahmedabad | Rangmanch | 85 | 99,131 | 3 |
+| Bengaluru | Antariksh 2050 | 170 | 204,044 | 1 |
+| Bengaluru | Kadal Nilavu | 164 | 203,509 | 2 |
+| Bengaluru | War 2 | 94 | 166,812 | 3 |
+| Chennai | Kadal Nilavu | 261 | 272,307 | 1 |
+| Chennai | Antariksh 2050 | 106 | 142,642 | 2 |
+| Chennai | Aakhri Raasta | 85 | 132,923 | 3 |
+| Delhi | Rangmanch | 242 | 351,828 | 1 |
+| Delhi | War 2 | 150 | 227,117 | 2 |
+| Delhi | Mehfil | 216 | 223,058 | 3 |
+| Hyderabad | Vennela | 203 | 263,533 | 1 |
+| Hyderabad | Mehfil | 185 | 247,291 | 2 |
+| Hyderabad | KGF Chapter 2 | 185 | 244,265 | 3 |
+| Kolkata | Rangmanch | 203 | 153,375 | 1 |
+| Kolkata | Mehfil | 187 | 148,918 | 2 |
+| Kolkata | War 2 | 93 | 80,747 | 3 |
+| Mumbai | Mehfil | 194 | 284,711 | 1 |
+| Mumbai | Dilli Nights | 212 | 276,631 | 2 |
+| Mumbai | Aakhri Raasta | 181 | 241,349 | 3 |
+| Pune | Rangmanch | 190 | 179,271 | 1 |
+| Pune | Mehfil | 102 | 174,893 | 2 |
+| Pune | Kanaka | 102 | 165,090 | 3 |
 
 *24 row(s).*
 
@@ -607,18 +608,18 @@ ORDER BY month
 
 | `month` | `revenue_inr` | `running_total_inr` |
 |---|---|---|
-| 2025-10 | 787,741 | 787,741 |
-| 2025-11 | 1,056,911 | 1,844,652 |
-| 2025-12 | 1,223,532 | 3,068,184 |
-| 2026-01 | 519,563 | 3,587,747 |
-| 2026-02 | 636,632 | 4,224,379 |
-| 2026-03 | 720,504 | 4,944,883 |
-| 2026-04 | 1,131,470 | 6,076,353 |
-| 2026-05 | 1,591,552 | 7,667,905 |
-| 2026-06 | 936,395 | 8,604,300 |
-| 2026-07 | 580,324 | 9,184,624 |
-| 2026-08 | 948,386 | 10,133,010 |
-| 2026-09 | 654,557 | 10,787,567 |
+| 2025-10 | 864,461 | 864,461 |
+| 2025-11 | 1,030,699 | 1,895,160 |
+| 2025-12 | 861,389 | 2,756,549 |
+| 2026-01 | 975,948 | 3,732,497 |
+| 2026-02 | 586,476 | 4,318,973 |
+| 2026-03 | 1,211,679 | 5,530,652 |
+| 2026-04 | 899,032 | 6,429,684 |
+| 2026-05 | 852,693 | 7,282,377 |
+| 2026-06 | 1,183,716 | 8,466,093 |
+| 2026-07 | 925,404 | 9,391,497 |
+| 2026-08 | 889,971 | 10,281,468 |
+| 2026-09 | 541,724 | 10,823,192 |
 
 *12 row(s).*
 
@@ -647,18 +648,18 @@ ORDER BY month
 
 | `month` | `revenue_inr` | `prev_month_revenue` | `mom_growth_pct` |
 |---|---|---|---|
-| 2025-10 | 787,741 | — | — |
-| 2025-11 | 1,056,911 | 787,741 | 34.17 |
-| 2025-12 | 1,223,532 | 1,056,911 | 15.76 |
-| 2026-01 | 519,563 | 1,223,532 | -57.54 |
-| 2026-02 | 636,632 | 519,563 | 22.53 |
-| 2026-03 | 720,504 | 636,632 | 13.17 |
-| 2026-04 | 1,131,470 | 720,504 | 57.04 |
-| 2026-05 | 1,591,552 | 1,131,470 | 40.66 |
-| 2026-06 | 936,395 | 1,591,552 | -41.16 |
-| 2026-07 | 580,324 | 936,395 | -38.03 |
-| 2026-08 | 948,386 | 580,324 | 63.42 |
-| 2026-09 | 654,557 | 948,386 | -30.98 |
+| 2025-10 | 864,461 | — | — |
+| 2025-11 | 1,030,699 | 864,461 | 19.23 |
+| 2025-12 | 861,389 | 1,030,699 | -16.43 |
+| 2026-01 | 975,948 | 861,389 | 13.30 |
+| 2026-02 | 586,476 | 975,948 | -39.91 |
+| 2026-03 | 1,211,679 | 586,476 | 106.60 |
+| 2026-04 | 899,032 | 1,211,679 | -25.80 |
+| 2026-05 | 852,693 | 899,032 | -5.15 |
+| 2026-06 | 1,183,716 | 852,693 | 38.82 |
+| 2026-07 | 925,404 | 1,183,716 | -21.82 |
+| 2026-08 | 889,971 | 925,404 | -3.83 |
+| 2026-09 | 541,724 | 889,971 | -39.13 |
 
 *12 row(s).*
 
@@ -681,8 +682,8 @@ ORDER BY d.is_weekend DESC
 
 | `day_type` | `bookings` | `tickets` | `revenue_inr` | `avg_booking_value_inr` |
 |---|---|---|---|---|
-| Weekend | 3,308 | 7,455 | 3,890,372 | 1,268.05 |
-| Weekday | 6,692 | 15,235 | 6,897,195 | 1,104.79 |
+| Weekend | 3,355 | 7,660 | 3,766,088 | 1,203.99 |
+| Weekday | 6,645 | 15,260 | 7,057,104 | 1,137.69 |
 
 *2 row(s).*
 
@@ -711,21 +712,21 @@ FETCH FIRST 15 ROWS ONLY
 
 | `customer_id` | `customer_name` | `city` | `customer_type` | `bookings` | `tickets` | `revenue_inr` |
 |---|---|---|---|---|---|---|
-| CUS00146 | Rahul Reddy | Mumbai | Loyal | 15 | 45 | 26,947 |
-| CUS00675 | Rajesh Mondal | Mumbai | Loyal | 15 | 32 | 26,683 |
-| CUS03114 | Pranav Roy | Chennai | Loyal | 14 | 44 | 21,186 |
-| CUS00154 | Ira Sethi | Mumbai | Loyal | 14 | 37 | 20,943 |
-| CUS00331 | Ishita Chatterjee | Mumbai | Loyal | 9 | 27 | 19,704 |
-| CUS00632 | Aadhya Das | Mumbai | Loyal | 12 | 32 | 19,589 |
-| CUS03010 | Siddharth Thomas | Chennai | Loyal | 17 | 38 | 18,674 |
-| CUS00069 | Aarav Dutta | Mumbai | Loyal | 13 | 29 | 18,156 |
-| CUS02892 | Rajesh Arora | Chennai | Loyal | 14 | 37 | 17,607 |
-| CUS02426 | Manish Shinde | Hyderabad | Loyal | 15 | 40 | 17,548 |
-| CUS03501 | Khushi Mondal | Pune | Loyal | 8 | 30 | 17,432 |
-| CUS03089 | Harsh D'Souza | Chennai | Loyal | 13 | 35 | 17,376 |
-| CUS00171 | Amit Singh | Mumbai | Loyal | 11 | 23 | 17,287 |
-| CUS03447 | Nandini Bansal | Pune | Loyal | 15 | 34 | 17,258 |
-| CUS00832 | Nisha Shinde | Mumbai | Loyal | 14 | 28 | 17,216 |
+| CUS02549 | Ananya George | Hyderabad | Loyal | 16 | 37 | 21,334 |
+| CUS02942 | Nisha Negi | Chennai | Loyal | 17 | 49 | 20,669 |
+| CUS03089 | Harsh D'Souza | Chennai | Loyal | 17 | 45 | 19,163 |
+| CUS03400 | Neel Nair | Pune | Loyal | 14 | 41 | 18,948 |
+| CUS02727 | Meera Nambiar | Hyderabad | Loyal | 12 | 34 | 18,257 |
+| CUS00868 | Aarav Shinde | Delhi | Loyal | 15 | 38 | 18,122 |
+| CUS00410 | Sai Mehta | Mumbai | Loyal | 11 | 30 | 17,585 |
+| CUS02458 | Sai Islam | Hyderabad | Loyal | 18 | 41 | 17,163 |
+| CUS02393 | Nikhil Sharma | Hyderabad | Loyal | 12 | 33 | 16,934 |
+| CUS03141 | Rohan Menon | Chennai | Loyal | 14 | 34 | 16,891 |
+| CUS02637 | Vikram Iyer | Hyderabad | Loyal | 12 | 31 | 16,773 |
+| CUS01217 | Om Sheikh | Delhi | Loyal | 13 | 35 | 16,528 |
+| CUS02892 | Rajesh Arora | Chennai | Loyal | 13 | 34 | 16,338 |
+| CUS02771 | Kabir Kulkarni | Chennai | Loyal | 14 | 30 | 15,974 |
+| CUS02583 | Aadhya Thakur | Hyderabad | Loyal | 14 | 34 | 15,576 |
 
 *15 row(s).*
 
@@ -746,7 +747,7 @@ JOIN dim_show s ON s.show_key = f.show_key
 
 | `revenue_2d` | `revenue_3d` | `revenue_imax` | `bookings_2d` | `bookings_3d` | `bookings_imax` |
 |---|---|---|---|---|---|
-| 3,527,510 | 1,983,301 | 5,276,756 | 4,544 | 2,019 | 3,437 |
+| 3,906,091 | 1,774,313 | 5,142,788 | 4,872 | 1,739 | 3,389 |
 
 *1 row(s).*
 
@@ -775,9 +776,9 @@ ORDER BY CASE c.customer_type WHEN 'New' THEN 1 WHEN 'Returning' THEN 2 ELSE 3 E
 
 | `customer_type` | `customers` | `bookings` | `tickets` | `revenue_inr` | `revenue_per_customer` | `avg_booking_value_inr` |
 |---|---|---|---|---|---|---|
-| New | 1,090 | 1,090 | 2,484 | 1,202,536 | 1,103.24 | 1,178.96 |
-| Returning | 1,507 | 3,581 | 8,145 | 3,907,880 | 2,593.15 | 1,166.18 |
-| Loyal | 883 | 5,329 | 12,061 | 5,677,151 | 6,429.39 | 1,149.22 |
+| New | 1,112 | 1,112 | 2,552 | 1,250,205 | 1,124.29 | 1,216.15 |
+| Returning | 1,527 | 3,653 | 8,460 | 3,995,421 | 2,616.52 | 1,164.85 |
+| Loyal | 860 | 5,235 | 11,908 | 5,577,566 | 6,485.54 | 1,144.59 |
 
 *3 row(s).*
 
@@ -818,22 +819,22 @@ ORDER BY tf.revenue_inr DESC
 
 | `theatre_name` | `city` | `screens_in_sample` | `shows` | `bookings` | `tickets` | `revenue_inr` | `avg_occupancy_pct` |
 |---|---|---|---|---|---|---|---|
-| Skyline Multiplex - Andheri | Mumbai | 5 | 28 | 1,102 | 2,559 | 1,573,482 | 39.79 |
-| Capital Screens - Saket | Delhi | 5 | 28 | 1,115 | 2,446 | 1,199,819 | 43.94 |
-| Metro Cinema - Lower Parel | Mumbai | 5 | 23 | 787 | 1,753 | 1,013,729 | 36.99 |
-| Anand Cinema - T. Nagar | Chennai | 5 | 20 | 883 | 2,020 | 998,081 | 52.02 |
-| Orion Cinemas - Koramangala | Bengaluru | 5 | 21 | 680 | 1,584 | 782,272 | 39.84 |
-| Deccan Mall Cinemas - Baner | Pune | 4 | 13 | 549 | 1,284 | 679,699 | 43.16 |
-| Sunset Screens - Kothrud | Pune | 5 | 16 | 602 | 1,383 | 590,442 | 41.49 |
-| Regal Multiplex - Dwarka | Delhi | 5 | 21 | 550 | 1,186 | 554,860 | 36.07 |
-| Deccan Talkies - Banjara Hills | Hyderabad | 5 | 14 | 549 | 1,207 | 528,611 | 45.42 |
-| Sabarmati Screens - SG Highway | Ahmedabad | 5 | 14 | 512 | 1,178 | 512,446 | 42.09 |
-| Nova Screens - Gachibowli | Hyderabad | 5 | 22 | 576 | 1,354 | 496,179 | 34.46 |
-| Riverside Multiplex - Howrah | Kolkata | 5 | 13 | 549 | 1,217 | 465,482 | 47.43 |
-| CineVerse - Whitefield | Bengaluru | 5 | 20 | 482 | 1,101 | 443,625 | 30.10 |
-| Bengal Cinema - Salt Lake | Kolkata | 5 | 12 | 392 | 853 | 361,164 | 35.27 |
-| Marina Movies - Velachery | Chennai | 5 | 14 | 339 | 803 | 335,792 | 36.81 |
-| Heritage Cinema - Navrangpura | Ahmedabad | 5 | 11 | 333 | 762 | 251,884 | 41.58 |
+| Capital Screens - Saket | Delhi | 5 | 30 | 1,059 | 2,455 | 1,207,378 | 40.24 |
+| Metro Cinema - Lower Parel | Mumbai | 5 | 29 | 919 | 2,142 | 1,157,133 | 40.76 |
+| Deccan Talkies - Banjara Hills | Hyderabad | 5 | 20 | 901 | 1,956 | 928,925 | 49.71 |
+| Nova Screens - Gachibowli | Hyderabad | 5 | 16 | 727 | 1,669 | 892,221 | 43.29 |
+| Skyline Multiplex - Andheri | Mumbai | 5 | 22 | 726 | 1,665 | 877,935 | 41.34 |
+| Orion Cinemas - Koramangala | Bengaluru | 5 | 22 | 779 | 1,751 | 788,432 | 41.24 |
+| Anand Cinema - T. Nagar | Chennai | 5 | 20 | 688 | 1,564 | 695,799 | 43.32 |
+| Regal Multiplex - Dwarka | Delhi | 5 | 19 | 549 | 1,283 | 643,046 | 38.64 |
+| CineVerse - Whitefield | Bengaluru | 5 | 19 | 597 | 1,334 | 633,318 | 34.48 |
+| Deccan Mall Cinemas - Baner | Pune | 5 | 15 | 518 | 1,179 | 595,533 | 38.22 |
+| Marina Movies - Velachery | Chennai | 4 | 14 | 530 | 1,234 | 581,226 | 45.88 |
+| Sunset Screens - Kothrud | Pune | 5 | 14 | 470 | 1,127 | 499,085 | 41.73 |
+| Heritage Cinema - Navrangpura | Ahmedabad | 5 | 11 | 340 | 803 | 373,311 | 34.70 |
+| Riverside Multiplex - Howrah | Kolkata | 3 | 11 | 428 | 984 | 345,910 | 51.08 |
+| Sabarmati Screens - SG Highway | Ahmedabad | 4 | 14 | 416 | 943 | 332,390 | 40.03 |
+| Bengal Cinema - Salt Lake | Kolkata | 5 | 14 | 353 | 831 | 271,550 | 36.07 |
 
 *16 row(s).*
 
@@ -860,9 +861,9 @@ ORDER BY revenue_inr DESC
 
 | `ticket_type` | `bookings` | `tickets` | `revenue_inr` | `revenue_per_ticket` | `avg_booking_value_inr` |
 |---|---|---|---|---|---|
-| Standard | 6,061 | 13,795 | 5,341,474 | 387.20 | 949.26 |
-| Premium | 2,962 | 6,642 | 3,569,185 | 537.37 | 1,288.05 |
-| Recliner | 977 | 2,253 | 1,876,908 | 833.07 | 2,055.76 |
+| Standard | 5,915 | 13,558 | 5,185,924 | 382.50 | 938.12 |
+| Premium | 3,079 | 7,105 | 3,793,656 | 533.94 | 1,321.83 |
+| Recliner | 1,006 | 2,257 | 1,843,612 | 816.84 | 1,976 |
 
 *3 row(s).*
 
@@ -902,30 +903,34 @@ ORDER BY revenue_rank
 
 | `movie_title` | `revenue_inr` | `revenue_rank` | `revenue_share_pct` | `cumulative_share_pct` | `revenue_quintile` |
 |---|---|---|---|---|---|
-| Dilli Nights | 1,841,194 | 1 | 17.07 | 17.07 | 1 |
-| Chandni Chowk Express | 1,317,244 | 2 | 12.21 | 29.28 | 1 |
-| Rangmanch | 957,638 | 3 | 8.88 | 38.16 | 1 |
-| Kanaka | 793,838 | 4 | 7.36 | 45.51 | 1 |
-| Antariksh 2050 | 717,072 | 5 | 6.65 | 52.16 | 1 |
-| Aakhri Raasta | 618,015 | 6 | 5.73 | 57.89 | 2 |
-| Raktham | 565,851 | 7 | 5.25 | 63.14 | 2 |
-| Vaanam | 552,561 | 8 | 5.12 | 68.26 | 2 |
-| Pei Veedu | 437,916 | 9 | 4.06 | 72.32 | 2 |
-| Mehfil | 436,668 | 10 | 4.05 | 76.37 | 2 |
-| Golconda | 421,973 | 11 | 3.91 | 80.28 | 3 |
-| Kadal Nilavu | 333,502 | 12 | 3.09 | 83.37 | 3 |
-| Neruppu | 326,036 | 13 | 3.02 | 86.39 | 3 |
-| Bhramaram | 268,566 | 14 | 2.49 | 88.88 | 3 |
-| Vennela | 261,746 | 15 | 2.43 | 91.31 | 4 |
-| Dhoop Chhaon | 252,371 | 16 | 2.34 | 93.65 | 4 |
-| Shor Macha | 249,537 | 17 | 2.31 | 95.96 | 4 |
-| Thiruvizha | 157,679 | 18 | 1.46 | 97.42 | 4 |
-| Manikya | 154,686 | 19 | 1.43 | 98.86 | 5 |
-| Sivappu Manjal | 74,558 | 20 | 0.69 | 99.55 | 5 |
-| Suryodayam | 25,250 | 21 | 0.23 | 99.78 | 5 |
-| Iravu Payanam | 23,666 | 22 | 0.22 | 100 | 5 |
+| Mehfil | 1,235,373 | 1 | 11.41 | 11.41 | 1 |
+| Rangmanch | 969,106 | 2 | 8.95 | 20.37 | 1 |
+| Aakhri Raasta | 797,699 | 3 | 7.37 | 27.74 | 1 |
+| Dilli Nights | 767,898 | 4 | 7.09 | 34.83 | 1 |
+| Antariksh 2050 | 722,931 | 5 | 6.68 | 41.51 | 1 |
+| Chandni Chowk Express | 617,484 | 6 | 5.71 | 47.22 | 1 |
+| War 2 | 593,081 | 7 | 5.48 | 52.70 | 2 |
+| Kadal Nilavu | 591,006 | 8 | 5.46 | 58.16 | 2 |
+| KGF Chapter 2 | 420,538 | 9 | 3.89 | 62.04 | 2 |
+| Iravu Payanam | 414,638 | 10 | 3.83 | 65.87 | 2 |
+| Vennela | 364,624 | 11 | 3.37 | 69.24 | 2 |
+| Animal | 340,265 | 12 | 3.14 | 72.39 | 3 |
+| Golconda | 335,559 | 13 | 3.10 | 75.49 | 3 |
+| Kanaka | 330,576 | 14 | 3.05 | 78.54 | 3 |
+| Pushpa 2: The Rule | 326,410 | 15 | 3.02 | 81.56 | 3 |
+| Manikya | 311,209 | 16 | 2.88 | 84.43 | 3 |
+| Sivappu Manjal | 252,286 | 17 | 2.33 | 86.76 | 4 |
+| Neruppu | 249,477 | 18 | 2.31 | 89.07 | 4 |
+| Pei Veedu | 241,903 | 19 | 2.24 | 91.30 | 4 |
+| Thiruvizha | 219,477 | 20 | 2.03 | 93.33 | 4 |
+| Vaanam | 212,058 | 21 | 1.96 | 95.29 | 4 |
+| Raktham | 208,762 | 22 | 1.93 | 97.22 | 5 |
+| Dhoop Chhaon | 205,843 | 23 | 1.90 | 99.12 | 5 |
+| Shor Macha | 63,062 | 24 | 0.58 | 99.71 | 5 |
+| Suryodayam | 17,947 | 25 | 0.17 | 99.87 | 5 |
+| Bhramaram | 13,980 | 26 | 0.13 | 100 | 5 |
 
-*22 row(s).*
+*26 row(s).*
 
 ### Q25 — Does a higher rating mean more bookings?
 
@@ -959,30 +964,34 @@ ORDER BY rating DESC, bookings DESC
 
 | `movie_title` | `rating` | `genre` | `language` | `bookings` | `tickets` | `revenue_inr` | `corr_rating_vs_bookings` |
 |---|---|---|---|---|---|---|---|
-| Dhoop Chhaon | 8.40 | Drama | Hindi | 285 | 634 | 252,371 | 0.04 |
-| Sivappu Manjal | 8.30 | Drama | Tamil | 57 | 142 | 74,558 | 0.04 |
-| Neruppu | 8.20 | Action | Tamil | 386 | 855 | 326,036 | 0.04 |
-| Dilli Nights | 8.10 | Thriller | Hindi | 1,640 | 3,724 | 1,841,194 | 0.04 |
-| Golconda | 8.10 | Historical | Telugu | 498 | 1,137 | 421,973 | 0.04 |
-| Vaanam | 8 | Drama | Tamil | 539 | 1,198 | 552,561 | 0.04 |
-| Raktham | 8 | Action | Telugu | 500 | 1,117 | 565,851 | 0.04 |
-| Iravu Payanam | 7.90 | Thriller | Tamil | 28 | 60 | 23,666 | 0.04 |
-| Aakhri Raasta | 7.80 | Action | Hindi | 644 | 1,442 | 618,015 | 0.04 |
-| Suryodayam | 7.80 | Drama | Telugu | 12 | 32 | 25,250 | 0.04 |
-| Bhramaram | 7.60 | Thriller | Telugu | 183 | 453 | 268,566 | 0.04 |
-| Antariksh 2050 | 7.50 | Sci-Fi | Hindi | 666 | 1,507 | 717,072 | 0.04 |
-| Rangmanch | 7.40 | Drama | Hindi | 888 | 1,987 | 957,638 | 0.04 |
-| Vennela | 7.30 | Romance | Telugu | 299 | 690 | 261,746 | 0.04 |
-| Kanaka | 7.20 | Action | Tamil | 568 | 1,291 | 793,838 | 0.04 |
-| Mehfil | 7.20 | Romance | Hindi | 432 | 932 | 436,668 | 0.04 |
-| Kadal Nilavu | 7.10 | Romance | Tamil | 307 | 704 | 333,502 | 0.04 |
-| Thiruvizha | 7 | Comedy | Tamil | 159 | 356 | 157,679 | 0.04 |
-| Manikya | 7 | Drama | Telugu | 152 | 364 | 154,686 | 0.04 |
-| Chandni Chowk Express | 6.90 | Comedy | Hindi | 1,117 | 2,588 | 1,317,244 | 0.04 |
-| Pei Veedu | 6.80 | Horror-Comedy | Tamil | 427 | 983 | 437,916 | 0.04 |
-| Shor Macha | 6.50 | Comedy | Hindi | 213 | 494 | 249,537 | 0.04 |
+| Pushpa 2: The Rule | 8.60 | Action | Telugu | 326 | 766 | 326,410 | -0.10 |
+| KGF Chapter 2 | 8.40 | Action | Kannada | 347 | 771 | 420,538 | -0.10 |
+| Dhoop Chhaon | 8.40 | Drama | Hindi | 243 | 551 | 205,843 | -0.10 |
+| Animal | 8.30 | Action | Hindi | 307 | 703 | 340,265 | -0.10 |
+| Sivappu Manjal | 8.30 | Drama | Tamil | 247 | 543 | 252,286 | -0.10 |
+| War 2 | 8.20 | Action | Hindi | 451 | 1,029 | 593,081 | -0.10 |
+| Neruppu | 8.20 | Action | Tamil | 249 | 546 | 249,477 | -0.10 |
+| Dilli Nights | 8.10 | Thriller | Hindi | 731 | 1,674 | 767,898 | -0.10 |
+| Golconda | 8.10 | Historical | Telugu | 349 | 743 | 335,559 | -0.10 |
+| Vaanam | 8 | Drama | Tamil | 229 | 556 | 212,058 | -0.10 |
+| Raktham | 8 | Action | Telugu | 185 | 401 | 208,762 | -0.10 |
+| Iravu Payanam | 7.90 | Thriller | Tamil | 376 | 895 | 414,638 | -0.10 |
+| Aakhri Raasta | 7.80 | Action | Hindi | 686 | 1,584 | 797,699 | -0.10 |
+| Suryodayam | 7.80 | Drama | Telugu | 26 | 51 | 17,947 | -0.10 |
+| Bhramaram | 7.60 | Thriller | Telugu | 17 | 40 | 13,980 | -0.10 |
+| Antariksh 2050 | 7.50 | Sci-Fi | Hindi | 632 | 1,392 | 722,931 | -0.10 |
+| Rangmanch | 7.40 | Drama | Hindi | 895 | 2,029 | 969,106 | -0.10 |
+| Vennela | 7.30 | Romance | Telugu | 297 | 687 | 364,624 | -0.10 |
+| Mehfil | 7.20 | Romance | Hindi | 1,086 | 2,548 | 1,235,373 | -0.10 |
+| Kanaka | 7.20 | Action | Tamil | 285 | 681 | 330,576 | -0.10 |
+| Kadal Nilavu | 7.10 | Romance | Tamil | 574 | 1,370 | 591,006 | -0.10 |
+| Manikya | 7 | Drama | Telugu | 281 | 642 | 311,209 | -0.10 |
+| Thiruvizha | 7 | Comedy | Tamil | 243 | 534 | 219,477 | -0.10 |
+| Chandni Chowk Express | 6.90 | Comedy | Hindi | 608 | 1,421 | 617,484 | -0.10 |
+| Pei Veedu | 6.80 | Horror-Comedy | Tamil | 261 | 597 | 241,903 | -0.10 |
+| Shor Macha | 6.50 | Comedy | Hindi | 69 | 166 | 63,062 | -0.10 |
 
-*22 row(s).*
+*26 row(s).*
 
 ## Reproduce
 

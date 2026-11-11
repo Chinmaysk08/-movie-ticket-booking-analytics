@@ -1,11 +1,12 @@
 # Project Progress Summary
 
-> **Status:** Phases 1, 2, 3 and 5 complete. Phase 4 (EDA) next.
-> Phase 6 (Power BI) blocked on Desktop installation.
-> Last updated: 2026-10-26
+> **Status:** All phases complete — generation, cleaning, EDA, Oracle SQL,
+> Power BI, Streamlit, documentation and GitHub.
+> Last updated: 2026-11-11
 
 All data in this project is **synthetic**. Results demonstrate analytical
-method, not real cinema performance.
+method, not real cinema performance. Four recent release names (KGF Chapter 2,
+Pushpa 2, War 2, Animal) are used as recognisable labels only.
 
 ---
 
@@ -13,12 +14,12 @@ method, not real cinema performance.
 
 Takes 10,300 messy synthetic booking rows, cleans them to 10,000 validated
 bookings, loads them into a 7-table Oracle star schema, answers 25 business
-questions in SQL, and presents the results in a Streamlit dashboard with a
-Power BI build guide ready to use.
+questions in SQL, explores them in a notebook, and presents the results in a
+4-page Power BI report with a Streamlit app as a runnable fallback.
 
 The defining feature: **every headline number is reconciled across four
 independent layers** — Pandas, Oracle, SQL and the dashboard all report
-₹10,787,567. Nothing is hand-copied.
+₹10,823,192. Nothing is hand-copied.
 
 ---
 
@@ -43,12 +44,19 @@ v2 was generated with a fixed seed.
 **v2 composition:** 10,300 raw rows = 10,000 unique bookings + 300 exact
 duplicates. Clean output: 10,000 × 33.
 
-**Network:** 8 cities · 16 multiplexes · 79 screens · 22 fictional movies ·
-3,480 customers · 290 shows.
+**Network:** 8 cities · 16 multiplexes · 76 screens in the sample · 26 movies ·
+3,499 customers · 290 shows.
 
-> 79 screens, not 80: the generator designs 16 × 5, but Screen 3 at Deccan Mall
-> Cinemas - Baner has no sampled booking. This is a property of the sample, not
-> a claim about the multiplex.
+> 76 screens, not 80: the generator designs 16 × 5, but four screens have no
+> sampled booking. This is a property of the sample, not a claim about those
+> multiplexes.
+
+**Recent releases:** KGF Chapter 2 (Kannada), Pushpa 2: The Rule (Telugu),
+War 2 (Hindi) and Animal (Hindi). Kannada was added as a fourth language, and
+movie selection now weights new releases more heavily in their opening weeks
+(5× within 14 days, 3× within 45, 1.6× within 90). Without that, a film
+released late in the year only had the few remaining show slots — KGF had 17
+bookings before the fix and 325 after.
 
 ---
 
@@ -62,7 +70,7 @@ oracledb 26.0.1, streamlit 1.66.1, plotly 7.1.0). Git 2.56. Oracle 26ai Free
 
 ### Complete — Phase 2: Generation and understanding
 
-- `src/00_generate_data.py` — seeded generator (42), 10,300 × 31.
+- `src/00_generate_data.py` — seeded generator (42), 10,300 × 31, 26 movies.
 - `docs/data_dictionary.md` — every column, type, valid range, business rule.
 - `notebooks/01_data_understanding.ipynb` — 21 code cells, 0 errors.
 - `reports/data_quality_report.md` — 11 issue categories, scorecard,
@@ -80,17 +88,22 @@ target.
 
 | Defect | Count | Treatment |
 |---|---:|---|
-| Wrong ticket prices | 50 | Recomputed from tier + format |
-| Malformed show times | 30 | Snapped to valid slots |
-| Invalid dates | 20 | Repaired into the design window |
-| Missing ratings | 10 | Filled from movie master |
-| Missing ages | 10 | Derived from age group |
-| Bad emails / phones | 60 / 60 | Rebuilt to valid format |
-| Wrong age groups | 50 | Re-derived from age |
-| Invalid promos | 50 | 15 recovered, 35 set to `NONE` |
-| City label variants | 232 | 34 variants → 8 cities |
+| Wrong ticket prices | 50 | Recomputed from the revenue formula |
+| Malformed show times | 30 | Modal slot for the same show |
+| Invalid dates | 20 | Modal date for the same show |
+| Invalid ratings | 10 | Modal rating for the movie |
+| Impossible ages | 10 | Customer's age from another booking |
+| Missing emails / phones | 60 / 60 | Copied from the same customer |
+| Missing age groups | 50 | Re-derived from age |
+| Missing promos | 50 | 14 recovered, 36 set to `NONE` |
+| City label variants | 273 | 34 variants → 8 cities |
 
-Raw file SHA256 unchanged: `4130a03d818488c5b97ad8aa9016e4c345569e30a19e3204b54ad8f300186963`.
+Raw file SHA256 unchanged: `71c37b9b3527c002a6a47eba992b23af81c37c68b01a09199e8a97c62f027fa9`.
+
+### Complete — Phase 4: EDA
+
+`notebooks/03_exploratory_data_analysis.ipynb` with 17 figures in
+`reports/figures/` and interpretations in `reports/eda_findings.md`.
 
 ### Complete — Phase 5: Oracle SQL
 
@@ -111,16 +124,22 @@ Two design points worth explaining:
 
 **SQL:** 25 queries, all executed, results auto-written to
 `reports/sql_results.md`. **20 independent revenue slices all sum to
-₹10,787,567.**
+₹10,823,192.**
 
-### Partial — Phase 4b: Presentation
+### Complete — Phase 6: Presentation
 
+- `powerbi/Movie_Booking_Analytics.pbix` — 4 pages, 5 reconciliation anchors.
 - `src/05_export_powerbi.py` — 8 objects to `data/powerbi/*.csv`, re-read and
-  verified.
-- `dashboard/app.py` — Streamlit fallback, 4 tabs, headless `AppTest` reports
-  0 exceptions; filters reconcile (Mumbai = ₹2,587,211, matching SQL).
-- `powerbi/build_guide.md` + `dax_measures.txt` — written for v2 with 5
-  reconciliation anchors.
+  verified against the generator's total.
+- `dashboard/app.py` — Streamlit fallback, 4 tabs plus a
+  **Recent Movies (last 30 days)** table and chart; filters reconcile
+  (Mumbai = ₹2,035,068, matching SQL).
+- `powerbi/build_guide.md` + `dax_measures.txt` — current anchors.
+
+### Complete — Phase 8: Docs, QA, Git
+
+README rewritten, `docs/QA_CHECKLIST.md` all green, MIT LICENSE, pushed to
+`https://github.com/Chinmaysk08/-movie-ticket-booking-analytics`.
 
 ---
 
@@ -129,27 +148,28 @@ Two design points worth explaining:
 | Metric | Value |
 |---|---:|
 | Bookings | 10,000 |
-| Confirmed bookings | 9,311 |
-| Confirmed tickets | 22,690 |
-| **Confirmed revenue** | **₹10,787,567** |
-| Average booking value | ₹1,158.58 |
-| Cancellation rate | 6.89% |
-| Mean show occupancy | 40.18% |
-| Customers | 3,480 |
+| Confirmed bookings | 9,331 |
+| Confirmed tickets | 22,920 |
+| **Confirmed revenue** | **₹10,823,192** |
+| Average booking value | ₹1,159.92 |
+| Cancellation rate | 6.69% |
+| Mean show occupancy | 41.23% |
+| Aggregate seat occupancy | 42.14% |
+| Customers | 3,499 |
 
 ### Findings (synthetic)
 
-- **IMAX = 48.9% of revenue** (₹5,276,756). 2D = 32.7%, 3D = 18.4%.
+- **IMAX = 47.5% of revenue** (₹5,142,788). 2D = 36.1%, 3D = 16.4%.
   *Caveat: the generator prices IMAX highest, so this is partly designed.*
-- **Evening shows dominate:** 18:45 + 21:30 = 66.8% of revenue.
-- **Cancellation is a channel problem:** Third-Party 12.76% vs Mobile App
-  5.57%. Delhi worst city at 8.11%.
-- **Loyal = 25.4% of customers, 53.3% of bookings, ₹5,677,151.**
-- **Recliner yields ₹833/ticket vs Standard ₹387.**
-- **Rating does not predict demand:** r = 0.04 across 22 movies.
-- **Mumbai leads revenue** (₹2,587,211) but is 6th on occupancy (38.5%).
-- **Top 5 movies = 52.16% of revenue.** May 2026 peak ₹1,591,552; Jan 2026 low
-  ₹519,563.
+- **Evening shows dominate:** 18:45 + 21:30 = 67.7% of revenue.
+- **Cancellation is a channel problem:** Third-Party 12.66% vs Mobile App
+  5.24%. Ahmedabad worst city at 7.94%.
+- **Loyal = 24.6% of customers, 52.4% of bookings, ₹5,577,566.**
+- **Recliner yields ₹816.84/ticket vs Standard ₹382.50.**
+- **Rating does not predict demand:** r = −0.10 across 26 movies.
+- **Mumbai leads revenue** (₹2,035,068) but is 4th on occupancy (41.01%).
+- **Top 5 movies = 41.5% of revenue.** Mar 2026 peak ₹1,211,679; Sep 2026 low
+  ₹541,724.
 - **Promos cost what they advertise:** FAMILY20 = 20% of gross,
   STUDENT15 = 15%.
 
@@ -168,16 +188,13 @@ Verified across layers:
 - Dashboard headless test: 0 exceptions
 - Power BI export re-read and checked
 
-Still open:
+Open / optional:
 
 | Item | Status |
 |---|---|
-| Phase 4 EDA notebook + findings | Not started |
-| Power BI `.pbix` | Blocked — Desktop not installed |
-| Optional ML (Phase 7) | Deferred; only if genuinely valuable |
-| README 12-section rewrite (Phase 8) | Partial |
-| QA checklist | Not started |
-| GitHub remote | Not created — needs user decision |
+| Phase 7 ML | Skipped deliberately — 290 shows and 26 movies give too little signal |
+| Power BI page screenshots | Optional; add to `reports/figures/` |
+| Larger show sample | Optional; would strengthen per-movie rankings |
 
 ---
 
@@ -200,13 +217,13 @@ movie-ticket-booking-analytics\
 ├── sql\
 │   ├── 01_schema.sql               7 tables, 4 views, 105 constraints
 │   └── 03_analysis_queries.sql     25 business queries
-├── notebooks\                      01 understanding, 02 cleaning
+├── notebooks\                      01 understanding, 02 cleaning, 03 EDA
 ├── dashboard\app.py                Streamlit fallback, 4 tabs
-├── powerbi\                        build guide + DAX measures
+├── powerbi\                        .pbix, build guide, DAX measures
 ├── reports\                        quality, cleaning, load, SQL evidence
-├── docs\data_dictionary.md         column dictionary + limitations
+├── docs\                           data dictionary, QA checklist
 ├── PROJECT_PLAN.md                 phase status + decision log
-└── README.md                       work-in-progress snapshot
+└── README.md                       project overview and caveats
 ```
 
 Credentials live in `.env`, which is git-ignored — never committed, never
@@ -216,10 +233,5 @@ hardcoded.
 
 ## 7. Remaining work
 
-1. **Phase 4 EDA** — `notebooks/03_exploratory_data_analysis.ipynb` and
-   `reports/eda_findings.md`. Explains the patterns the SQL exposed rather than
-   repeating the queries.
-2. **Phase 6 Power BI** — once Desktop is installed. Guide is ready.
-3. **Phase 7 ML** — optional, only if it adds real value.
-4. **Phase 8** — full README, QA checklist, then GitHub (remote creation and
-   push only after explicit approval).
+None required. Optional follow-ups are listed in section 5 and in
+`PROJECT_PLAN.md` section 12.

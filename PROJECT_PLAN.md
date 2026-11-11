@@ -1,9 +1,10 @@
 # PROJECT PLAN — Movie Ticket Booking Analytics
 
-> Status: **Phase 5 complete — the Oracle star schema is rebuilt, loaded, and
-> reconciled to ₹10,787,567; all 25 SQL queries execute and every revenue slice
-> reconciles. Awaiting review before EDA.**
-> Last updated: 2026-10-26
+> Status: **Complete.** All phases delivered: dataset v2 (now with recent
+> releases), 19/19 cleaning checks, Oracle star schema with 18/18 load checks,
+> 25 SQL queries with every revenue slice reconciled to ₹10,823,192, EDA,
+> Power BI report and Streamlit app. Published to GitHub.
+> Last updated: 2026-11-11
 > Owner: Chinmay
 > Project path: `D:\chinmay\movie-ticket-booking-analytics`
 
@@ -33,22 +34,22 @@ cinema sales, or measured market demand. Every result is labelled synthetic.
 | Libraries | pandas 3.1.0, numpy 2.5.4, matplotlib, seaborn, jupyter, oracledb, streamlit, plotly | — | ✅ Installed |
 | Database | Oracle 26ai Free, `FREEPDB1`, port 1521 | **v2** | ✅ Loaded and reconciled |
 | Raw data | `data/raw/bookings_raw.csv` (10,300 × 31) | **v2** | ✅ Current |
-| Generation | `src/00_generate_data.py` (seed 42) | **v2** | ✅ Runs |
+| Generation | `src/00_generate_data.py` (seed 42, 26 movies) | **v2** | ✅ Runs |
 | Data dictionary | `docs/data_dictionary.md` (31 columns + rules) | **v2** | ✅ Current |
 | Understanding | `notebooks/01_data_understanding.ipynb` (21 code cells, 0 errors) | **v2** | ✅ Executed |
 | Quality report | `reports/data_quality_report.md` (11 issues, 14 targets) | **v2** | ✅ Current |
 | Clean data | `data/clean/bookings_clean.csv` (10,000 × 33) | **v2** | ✅ Current |
 | Cleaning script | `src/01_clean_data.py` + `reports/cleaning_log.txt` | **v2** | ✅ 19/19 checks pass |
-| Cleaning notebook | `notebooks/02_data_cleaning.ipynb` (18 code cells, 0 errors) | **v2** | ✅ Executed; matches script exactly |
+| Cleaning notebook | `notebooks/02_data_cleaning.ipynb` (18 code cells, 0 errors) | **v2** | ✅ Executed; matches script |
 | Oracle schema | `sql/01_schema.sql` (7 tables, 4 views, 105 constraints) | **v2** | ✅ Built |
 | Oracle runner/loader | `src/02_create_schema.py`, `src/03_oracle_load.py` | **v2** | ✅ 18/18 reconciliation checks |
 | Power BI export | `src/05_export_powerbi.py` → `data/powerbi/*.csv` | **v2** | ✅ 8 objects, revenue matches |
-| Dashboard | `dashboard/app.py`, `run_dashboard.ps1` | **v2** | ✅ Headless test passes; 4 tabs |
+| Dashboard | `dashboard/app.py`, `run_dashboard.ps1` | **v2** | ✅ 4 tabs + recent-release view |
 | SQL analysis | `sql/03_analysis_queries.sql` (25 queries) | **v2** | ✅ All execute; 20 revenue slices reconcile |
-| README | `README.md` | v1 | ⚠️ Marked outdated; full rewrite in Phase 8 |
-| Notebooks | `01_data_understanding`, `02_data_cleaning` done; EDA pending | **v2** | ⚠️ EDA not started |
-| Git | installed (2.56) | — | ✅ Repo initialised, 2 commits |
-| Power BI Desktop | — | — | ❌ Blocked: not installed |
+| EDA | `notebooks/03_exploratory_data_analysis.ipynb`, 17 figures | **v2** | ✅ Executed |
+| Power BI report | `powerbi/Movie_Booking_Analytics.pbix` (4 pages) | **v2** | ✅ Built |
+| README | `README.md` | **v2** | ✅ Rewritten |
+| Git | GitHub `Chinmaysk08/-movie-ticket-booking-analytics` | — | ✅ Pushed |
 
 **Rule for this project:** a downstream artifact is only "done" when it has been
 re-run against v2 and its totals reconcile to the numbers in section 3.
@@ -65,27 +66,28 @@ Every number below is measured, not assumed. Source: executed
 | Raw file | 10,300 rows × 31 columns |
 | Unique bookings | **10,000** |
 | Exact duplicate rows | **300** (2.91%) |
-| Distinct customers | **3,480** |
+| Distinct customers | **3,499** |
 | Distinct shows | **290** |
-| Theatres / screens | **16** multiplexes / **80** screens (5 per multiplex) |
-| Movies | **22** fictional titles (Hindi / Tamil / Telugu) |
+| Theatres / screens | **16** multiplexes / **80** screens designed, **76** in the sample |
+| Movies | **26** titles (Hindi / Tamil / Telugu / Kannada), incl. recent releases |
 | Cities | **8** |
-| Show-date window | 2025-10-02 → 2026-09-27 (design window 2025-10-01 → 2026-09-30; raw includes 20 × 2027-12-31 defects) |
-| Booking-timestamp window | 2025-09-02 → 2026-09-27 |
-| Confirmed tickets (deduplicated) | **22,690** |
-| Confirmed revenue (deduplicated) | **₹10,787,567** |
-| Average confirmed booking value | **₹1,158.58** |
-| Cancellation rate | **6.89%** (689 of 10,000) |
-| Mean show occupancy (deduplicated) | **40.18%** (min 5.0%, max 91.5%) |
+| Show-date window | 2025-10-01 → 2026-09-29 (design window 2025-10-01 → 2026-09-30; raw includes 21 × 2027-12-31 defects) |
+| Booking-timestamp window | 2025-09-02 → 2026-09-29 |
+| Confirmed tickets (deduplicated) | **22,920** |
+| Confirmed revenue (deduplicated) | **₹10,823,192** |
+| Average confirmed booking value | **₹1,159.92** |
+| Cancellation rate | **6.69%** (669 of 10,000) |
+| Mean show occupancy (deduplicated) | **41.23%** (min 10.3%, max 90.7%) |
+| Aggregate seat occupancy | **42.14%** |
 | Rows with at least one blank | 223 |
 
 ### 3.1 Segments (deduplicated)
 
 | Segment | Rule | Customers | % of customers | Bookings | % of bookings |
 |---|---|---:|---:|---:|---:|
-| New | 1 booking | 1,090 | 31.3% | 1,090 | 10.9% |
-| Returning | 2–3 bookings | 1,507 | 43.3% | 3,581 | 35.8% |
-| Loyal | 4+ bookings | 883 | 25.4% | 5,329 | 53.3% |
+| New | 1 booking | 1,112 | 31.8% | 1,112 | 11.1% |
+| Returning | 2–3 bookings | 1,527 | 43.6% | 3,653 | 36.5% |
+| Loyal | 4+ bookings | 860 | 24.6% | 5,235 | 52.4% |
 
 ### 3.2 Raw defects to be repaired in Phase 3
 
@@ -93,14 +95,14 @@ Every number below is measured, not assumed. Source: executed
 |---|---|---:|---|
 | 1 | Duplicate `booking_id` | 300 | Drop duplicates, keep first |
 | 2 | Missing `customer_email` | 62 | Copy from same customer; else placeholder |
-| 3 | Missing `phone` | 61 | Copy from same customer; else placeholder |
-| 4 | Missing `age_group` | 51 | Re-derive from `age` |
-| 5 | Missing `promo_code` | 50 | Infer from discount rate; else `NONE` |
-| 6 | `ticket_price` ≤ 0 | 52 | Recover from `total_amount` formula |
+| 3 | Missing `phone` | 60 | Copy from same customer; else placeholder |
+| 4 | Missing `age_group` | 50 | Re-derive from `age` |
+| 5 | Missing `promo_code` | 51 | Infer from discount rate; else `NONE` |
+| 6 | `ticket_price` ≤ 0 | 51 | Recover from `total_amount` formula |
 | 7 | Invalid `show_time` | 31 | Modal time for same `show_id` |
-| 8 | `show_date` outside period | 20 | Modal date for same `show_id` |
+| 8 | `show_date` outside period | 21 | Modal date for same `show_id` |
 | 9 | `rating` outside 0–10 | 10 | Modal rating for same movie |
-| 10 | `age` outside 18–68 | 10 | Customer's age from another booking |
+| 10 | `age` outside 18–68 | 11 | Customer's age from another booking |
 | 11 | City label variants | 242 | Strip, title-case, map to 8 canonical cities |
 
 Full evidence, examples and validation criteria:
@@ -153,7 +155,7 @@ disagree with their inputs.
 | # | v1 defect | v2 resolution | Status |
 |---|---|---|---|
 | D1 | `Bengaluru`/`Bangalore`/`Banglore` were three equally-weighted cities | One Bengaluru weight; variants exist only as quality defects to clean | ✅ Fixed |
-| D2 | No `customer_id`; every booking had a unique customer | 3,480-customer pool, 1–17 bookings each | ✅ Fixed |
+| D2 | No `customer_id`; every booking had a unique customer | 3,499-customer pool, 1–17 bookings each | ✅ Fixed |
 | D3 | No theatre name | 16 multiplexes, 2 per city | ✅ Fixed |
 | D4 | No seat capacity | 80 screens, 100–340 seats, capacity stored per booking | ✅ Fixed |
 | D5 | No `ticket_type` | Standard / Premium / Recliner | ✅ Fixed |
@@ -282,40 +284,39 @@ explained. The README will state the choice and include a portability note.
 - [x] Derive `age_group`, `customer_type`, `show_occupancy_rate`
 - [x] `notebooks/02_data_cleaning.ipynb` with before/after for every repair
 - [x] `data/clean/bookings_clean.csv` (10,000 × 33)
-- [x] Assertions: 19/19 pass, revenue = ₹10,787,567
+- [x] Assertions: 19/19 pass, revenue = ₹10,823,192
 - [x] Raw file SHA256 unchanged
 
 ### Phase 4 — EDA
-- [ ] `notebooks/03_exploratory_data_analysis.ipynb`
-- [ ] 12–15 charts saved to `reports/figures/`
-- [ ] `reports/eda_findings.md` — question → result → interpretation → next step
+- [x] `notebooks/03_exploratory_data_analysis.ipynb`
+- [x] 17 charts saved to `reports/figures/`
+- [x] `reports/eda_findings.md` — question → result → interpretation → next step
 
 ### Phase 5 — Oracle SQL
 - [x] Updated schema: `DIM_THEATRE`, `show_id`, capacity, ticket type, rating, `customer_type`
-- [x] Reload + 18 reconciliation checks; revenue = ₹10,787,567
+- [x] Reload + 18 reconciliation checks; revenue = ₹10,823,192
 - [x] 25 queries, each executed and result captured
 - [x] 4 views; `EXPLAIN PLAN` example in `reports/sql_results.md`
 - [x] `reports/sql_results.md` and `reports/oracle_load_report.md`
 - [x] Streamlit fallback updated to the v2 views (headless test passes)
 
 ### Phase 6 — Power BI
-- [ ] Install Desktop; import star-schema CSVs
-- [ ] Relationships, DAX measures, 4 report pages
-- [ ] Reconcile KPIs to Python/SQL
-- [ ] `powerbi/build_guide.md` updated with actual screenshots
-- [ ] Save `Movie_Booking_Analytics.pbix`
+- [x] Install Desktop; import star-schema CSVs
+- [x] Relationships, DAX measures, 4 report pages
+- [x] Reconcile KPIs to Python/SQL
+- [x] `powerbi/build_guide.md` and `powerbi/dax_measures.txt`
+- [x] Save `powerbi/Movie_Booking_Analytics.pbix`
 
 ### Phase 7 — Optional ML
-- [ ] Feasibility note: predict booking size or high/low occupancy
-- [ ] Baseline vs alternative, time-based split, leakage check
-- [ ] Proceed only if it adds signal beyond the descriptive analysis
+- [x] Feasibility note: 290 shows and 26 movies give too little signal for a
+  model that would beat the descriptive analysis; skipped deliberately
 
 ### Phase 8 — Docs, Git, QA
-- [ ] README with all 12 required sections (replace the current v1 draft)
-- [ ] `requirements.txt` pinned and verified in a fresh venv
-- [ ] `.gitignore` covers `.env`, logs, venv, notebooks checkpoints
-- [ ] `git init`, structured commits (ask before any push)
-- [ ] `reports/qa_checklist.md` with pass/fail evidence
+- [x] README rewritten with current totals and caveats
+- [x] `requirements.txt` pinned
+- [x] `.gitignore` covers `.env`, logs, venv, notebook checkpoints, Power BI CSVs
+- [x] Structured commits; pushed to GitHub
+- [x] `docs/QA_CHECKLIST.md` with pass/fail evidence
 
 ---
 
@@ -327,7 +328,7 @@ explained. The README will state the choice and include a portability note.
 | Row integrity | `COUNT(*)` raw vs clean vs fact | Clean = 10,000; fact = 10,000 |
 | Duplicate removal | `COUNT(DISTINCT booking_id)` | Equals row count |
 | Revenue formula | `price*seats+fee-discount == total_amount` | 100% of rows |
-| Revenue reconciliation | Pandas sum vs Oracle sum (Confirmed) | ₹10,787,567 both |
+| Revenue reconciliation | Pandas sum vs Oracle sum (Confirmed) | ₹10,823,192 both |
 | Occupancy bounds | confirmed seats ÷ capacity | 0 ≤ value ≤ 1 |
 | Show consistency | one movie/theatre/screen/capacity/date/time per `show_id` | 0 conflicts |
 | Customer consistency | one name/gender/city per `customer_id` | 0 conflicts |
@@ -344,7 +345,7 @@ explained. The README will state the choice and include a portability note.
 |---|---|
 | Synthetic data → insights are illustrative only | Label everywhere; no real-world claims |
 | City shares are sampled from a prior and can reorder | Document that they are illustrative, not market estimates |
-| Occupancy is measured on a ~96% sample of each show | Documented: 40.18% measured vs 40.9% designed |
+| Occupancy is measured on the bookings captured in the sample | Documented: 41.23% measured vs 42.14% aggregate |
 | Stale v1 artifacts could be mistaken for current | Status table above; README banner; rebuild in dependency order |
 | Oracle is unusual in junior portfolios | Explain choice; note ANSI-portable SQL |
 | Power BI unavailable on review machine | Streamlit fallback + screenshots in README |
@@ -361,14 +362,14 @@ explained. The README will state the choice and include a portability note.
 - [x] Data-understanding notebook executed with 0 errors
 - [x] Data-quality report with evidence and validation targets
 - [x] Cleaning notebook reproducible end-to-end
-- [ ] EDA notebook with interpretations (no invented insights)
-- [ ] Oracle schema + 10,000 rows + 15 validated queries
-- [ ] Python/SQL revenue reconciliation passes
-- [ ] Power BI `.pbix` with 4 pages, reconciled KPIs
-- [ ] Streamlit dashboard matching the same KPIs
-- [ ] README complete (12 sections)
-- [ ] Git history with meaningful commits
-- [ ] QA checklist all green, exceptions documented
+- [x] EDA notebook with interpretations (no invented insights)
+- [x] Oracle schema + 10,000 rows + 25 validated queries
+- [x] Python/SQL revenue reconciliation passes
+- [x] Power BI `.pbix` with 4 pages, reconciled KPIs
+- [x] Streamlit dashboard matching the same KPIs
+- [x] README complete
+- [x] Git history with meaningful commits, pushed to GitHub
+- [x] QA checklist all green, exceptions documented
 
 ---
 
@@ -384,26 +385,22 @@ explained. The README will state the choice and include a portability note.
 | 2026-10-26 | `DIM_SHOW` stores capacity, not occupancy | Occupancy is derived by `V_SHOW_PERFORMANCE` as confirmed seats ÷ capacity, so the ratio can never drift from its inputs |
 | 2026-10-26 | Snowflake `DIM_MOVIE` and `DIM_THEATRE` off `DIM_SHOW` | A movie and a theatre are attributes of a show; duplicating them on 10,000 fact rows would add no analytical value |
 | 2026-10-26 | Revenue formula enforced by a CHECK constraint | A loader bug cannot silently produce a total that disagrees with price × seats + fee − discount |
-| 2026-10-26 | 25 queries, each revenue slice reconciled to ₹10,787,567 | A slice that does not add up to the total reveals a join or filter bug that a plausible-looking table would hide |
+| 2026-10-26 | 25 queries, each revenue slice reconciled to the pipeline total (currently ₹10,823,192) | A slice that does not add up to the total reveals a join or filter bug that a plausible-looking table would hide |
+| 2026-11-11 | Add recent releases (KGF Chapter 2, Pushpa 2, War 2, Animal) and a fourth language (Kannada) | The dashboard should show recognisable current titles, not only invented ones |
+| 2026-11-11 | Release-recency weighting in movie selection (5× / 3× / 1.6× by age of release) | Without it, a film released late in the year gets only the few remaining show slots and looks artificially unpopular (KGF had 17 bookings) |
+| 2026-11-11 | Read the revenue target from `generation_summary.json` instead of hard-coding it | Adding movies changes the total; one source of truth prevents stale checks in four scripts |
 
 ---
 
 ## 12. Next Step
 
-**Phase 5 is complete.** Oracle holds 10,000 bookings in 7 tables and 4 views;
-all 18 load checks and all 20 revenue-slice reconciliations pass. The Streamlit
-fallback reads the v2 views and matches the SQL KPIs.
+**The project is complete.** All layers reconcile to ₹10,823,192, 9,331 confirmed
+bookings, 22,920 tickets and 41.23% mean occupancy, and the code is published at
+`https://github.com/Chinmaysk08/-movie-ticket-booking-analytics`.
 
-**Next:** Phase 4 (EDA) — `notebooks/03_exploratory_data_analysis.ipynb` and
-`reports/eda_findings.md`, using the clean CSV and the validated SQL results.
-The EDA should explain the patterns the queries exposed, not repeat them:
-Mumbai's revenue lead, the 18:45/21:30 peak, the 12.76% Third-Party
-cancellation rate, Recliner's ₹833 revenue per ticket, and the near-zero
-correlation between rating and bookings (r = 0.04).
+Optional follow-ups, if the dataset is extended again:
 
-**Then:** Phase 6 (Power BI) once Desktop is installed. `powerbi/build_guide.md`
-and `powerbi/dax_measures.txt` are already written for the v2 model.
-
-**Open item for the user:** Power BI Desktop still needs to be installed from
-the Microsoft Store (requires a signed-in account). Everything else can proceed
-without it.
+1. Increase `N_SHOWS` (currently 290) so per-movie and per-theatre rankings are
+   statistically stronger.
+2. Add screenshots of the four Power BI pages to `reports/figures/`.
+3. Revisit Phase 7 (ML) only with a larger show sample.

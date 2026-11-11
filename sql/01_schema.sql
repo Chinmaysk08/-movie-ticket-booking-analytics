@@ -84,7 +84,7 @@ CREATE TABLE dim_movie (
     CONSTRAINT pk_movie        PRIMARY KEY (movie_key),
     CONSTRAINT uq_movie_title  UNIQUE (movie_title),
     CONSTRAINT ck_movie_rating CHECK (rating BETWEEN 0 AND 10),
-    CONSTRAINT ck_movie_lang   CHECK (language IN ('Hindi','Tamil','Telugu')),
+    CONSTRAINT ck_movie_lang   CHECK (language IN ('Hindi','Tamil','Telugu','Kannada')),
     CONSTRAINT ck_movie_genre  CHECK (genre IN ('Action','Comedy','Drama','Historical',
                                                 'Horror-Comedy','Romance','Sci-Fi','Thriller'))
 );

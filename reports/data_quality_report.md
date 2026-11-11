@@ -7,7 +7,7 @@
 >
 > **Source of truth:** every number below comes from the executed notebook
 > `notebooks/01_data_understanding.ipynb`, not from manual inspection.
-> Report date: 2026-10-26.
+> Report date: 2026-11-11.
 
 ---
 
@@ -34,9 +34,9 @@ the KPIs:
 
 | KPI | Raw (with duplicates) | Deduplicated | Inflation |
 |---|---:|---:|---:|
-| Confirmed tickets | 23,358 | **22,690** | +2.94% |
-| Confirmed revenue | ₹11,110,984 | **₹10,787,567** | +3.00% |
-| Mean show occupancy | 41.4% | **40.2%** | +1.2 pp |
+| Confirmed tickets | 23,603 | **22,920** | +2.98% |
+| Confirmed revenue | ₹11,161,531 | **₹10,823,192** | +3.12% |
+| Mean show occupancy | 42.4% | **41.2%** | +1.2 pp |
 
 A 3% error is enough to change a ranking or a budget decision, which is why
 deduplication is the first cleaning step, not an afterthought.
@@ -51,15 +51,15 @@ deduplication is the first cleaning step, not an afterthought.
 | Grain | one row = one booking |
 | Rows × columns | 10,300 × 31 |
 | Unique bookings | 10,000 |
-| Distinct customers | 3,480 |
+| Distinct customers | 3,499 |
 | Distinct shows | 290 |
 | Theatres | 16 (2 per city, 5 screens each) |
-| Movies | 22 fictional titles |
-| Show-date window | 2025-10-02 → 2026-09-27 (inside the 2025-10-01 → 2026-09-30 design window) |
-| Booking-timestamp window | 2025-09-02 → 2026-09-27 (bookings can precede the show by up to 30 days) |
-| Confirmed revenue (deduplicated) | ₹10,787,567 |
-| Confirmed tickets (deduplicated) | 22,690 |
-| Mean show occupancy (deduplicated) | 40.2% |
+| Movies | 26 titles (22 fictional + 4 recent release names) |
+| Show-date window | 2025-10-01 → 2026-09-29 (inside the 2025-10-01 → 2026-09-30 design window) |
+| Booking-timestamp window | 2025-09-02 → 2026-09-29 (bookings can precede the show by up to 30 days) |
+| Confirmed revenue (deduplicated) | ₹10,823,192 |
+| Confirmed tickets (deduplicated) | 22,920 |
+| Mean show occupancy (deduplicated) | 41.2% |
 
 The dataset is a **sample**, not a complete transaction log. Only shows with at
 least one sampled booking appear, so occupancy describes those 290 shows rather
@@ -99,15 +99,15 @@ deleted.
 |---|---|---:|---:|---|---|---|
 | 1 | Duplicate `booking_id` rows | 300 | 2.91% | 10,300 rows, 10,000 distinct IDs; all 300 are exact copies | Drop duplicates, keep first | 10,000 rows, 10,000 distinct IDs |
 | 2 | Missing `customer_email` | 62 | 0.60% | 62 blanks | Copy from the same customer's other booking; else placeholder | 0 blanks |
-| 3 | Missing `phone` | 61 | 0.59% | 61 blanks | Copy from the same customer's other booking; else placeholder | 0 blanks |
-| 4 | Missing `age_group` | 51 | 0.50% | 51 blanks | Re-derive from `age` | 0 blanks, all values in the 5 allowed bands |
-| 5 | Missing `promo_code` | 50 | 0.49% | 50 blanks; some still have a discount | Infer from discount rate (5/10/15/20%); else `NONE` | 0 blanks, no discount without a promo |
-| 6 | `ticket_price` ≤ 0 | 52 | 0.50% | Values of 0, −50, −100 | Recover from `total_amount` formula | 0 non-positive prices; 0 formula failures |
-| 7 | Invalid `show_time` | 31 | 0.30% | 12× `25:30`, 10× `abc`, 9× `99:00` | Modal `show_time` for the same `show_id` | 0 invalid times |
-| 8 | `show_date` outside period | 20 | 0.19% | 20× `2027-12-31` | Modal `show_date` for the same `show_id` | 0 out-of-period dates |
-| 9 | `rating` outside 0–10 | 10 | 0.10% | 9× −1.0, 1× 12.5 | Modal `rating` for the same `movie_title` | 0 out-of-range ratings |
-| 10 | `age` outside 18–68 | 10 | 0.10% | 8× −5, 2× 150 | The customer's age from another booking | 0 impossible ages |
-| 11 | City label variants | 242 | 2.35% | 34 raw labels → 8 cities; 49 rows have whitespace, 114 are not title case | Strip, title-case, map `Bangalore`/`Banglore` → `Bengaluru` | Exactly 8 labels; 0 customer city conflicts |
+| 3 | Missing `phone` | 60 | 0.58% | 60 blanks | Copy from the same customer's other booking; else placeholder | 0 blanks |
+| 4 | Missing `age_group` | 50 | 0.49% | 50 blanks | Re-derive from `age` | 0 blanks, all values in the 5 allowed bands |
+| 5 | Missing `promo_code` | 51 | 0.50% | 51 blanks; some still have a discount | Infer from discount rate (5/10/15/20%); else `NONE` | 0 blanks, no discount without a promo |
+| 6 | `ticket_price` ≤ 0 | 51 | 0.50% | Values of 0, −50, −100 | Recover from `total_amount` formula | 0 non-positive prices; 0 formula failures |
+| 7 | Invalid `show_time` | 31 | 0.30% | Values such as `25:30`, `abc`, `99:00` | Modal `show_time` for the same `show_id` | 0 invalid times |
+| 8 | `show_date` outside period | 21 | 0.20% | 21× `2027-12-31` | Modal `show_date` for the same `show_id` | 0 out-of-period dates |
+| 9 | `rating` outside 0–10 | 10 | 0.10% | Values of −1.0 and 12.5 | Modal `rating` for the same `movie_title` | 0 out-of-range ratings |
+| 10 | `age` outside 18–68 | 11 | 0.11% | Values of −5 and 150 | The customer's age from another booking | 0 impossible ages |
+| 11 | City label variants | 279 | 2.71% | 34 raw labels → 8 cities; 53 rows have whitespace, 167 are not title case | Strip, title-case, map `Bangalore`/`Banglore` → `Bengaluru` | Exactly 8 labels; 0 customer city conflicts |
 
 ---
 
@@ -126,9 +126,9 @@ deleted.
 
 Duplicates do not just inflate the booking count. They inflate:
 
-- confirmed tickets: 23,358 vs 22,690 (+2.94%);
-- confirmed revenue: ₹11,110,984 vs ₹10,787,567 (+3.00%);
-- mean occupancy: 41.4% vs 40.2%.
+- confirmed tickets: 23,603 vs 22,920 (+2.98%);
+- confirmed revenue: ₹11,161,531 vs ₹10,823,192 (+3.12%);
+- mean occupancy: 42.4% vs 41.2%.
 
 **Treatment**
 
@@ -146,9 +146,9 @@ the copies are identical, keeping first or last does not change any value.
 | Column | Missing | % of rows | Recoverable? | How |
 |---|---:|---:|---|---|
 | `customer_email` | 62 | 0.60% | Yes | Same customer's other booking |
-| `phone` | 61 | 0.59% | Yes | Same customer's other booking |
-| `age_group` | 51 | 0.50% | Yes | Derived from `age` |
-| `promo_code` | 50 | 0.49% | Mostly | Infer from `discount_amount`; else `NONE` |
+| `phone` | 60 | 0.58% | Yes | Same customer's other booking |
+| `age_group` | 50 | 0.49% | Yes | Derived from `age` |
+| `promo_code` | 51 | 0.50% | Mostly | Infer from `discount_amount`; else `NONE` |
 
 223 rows have at least one blank (some rows have more than one).
 
@@ -209,7 +209,7 @@ Then recompute `total_amount` from the recovered price and verify the formula.
 
 - 0 rows with `ticket_price <= 0`.
 - 0 rows where the recomputed total differs from the stored total.
-- Confirmed revenue returns to **₹10,787,567**, matching the generator's clean
+- Confirmed revenue returns to **₹10,823,192**, matching the generator's clean
   base.
 
 ---
@@ -218,11 +218,11 @@ Then recompute `total_amount` from the recovered price and verify the formula.
 
 **What we found**
 
-- 20 rows have `show_date = 2027-12-31`, outside the 2025-10-01 → 2026-09-30
+- 21 rows have `show_date = 2027-12-31`, outside the 2025-10-01 → 2026-09-30
   window.
-- 31 rows have an invalid `show_time`: 12× `25:30`, 10× `abc`, 9× `99:00`.
+- 31 rows have an invalid `show_time` (values such as `25:30`, `abc`, `99:00`).
 - 0 bookings with a **valid** time were made after their show started.
-- 4,078 bookings were made on the same calendar day as the show, which is
+- 4,056 bookings were made on the same calendar day as the show, which is
   normal for cinema.
 
 **Why it matters**
@@ -345,10 +345,10 @@ calculated **per show**, not per booking.
 
 | Dataset | Min | Mean | Max | Shows > 100% |
 |---|---:|---:|---:|---:|
-| Deduplicated | 5.0% | **40.2%** | 91.5% | 0 |
-| Raw (with duplicates) | 5.0% | 41.4% | 95.0% | 0 |
+| Deduplicated | 10.3% | **41.2%** | 90.7% | 0 |
+| Raw (with duplicates) | 10.3% | 42.4% | 100.0% | 0 |
 
-No show crosses 100% in this sample because the fullest show has 8.5%
+No show crosses 100% in this sample because the fullest show has 9.3%
 headroom. The duplicate rows still overstate the mean and the confirmed-seat
 total. In a busier sample, the same bug would produce impossible values above
 100%, which is why the check matters.
@@ -369,7 +369,7 @@ same show).
 
 **What we found**
 
-- 3,480 distinct customers.
+- 3,499 distinct customers.
 - 0 customers with more than one name.
 - 0 customers with more than one gender.
 - 0 customers with more than one city **after normalization**.
@@ -451,10 +451,10 @@ The cleaning notebook applies the treatments above in this order:
 | 10 | Show consistency | 0 shows with >1 date/time/movie/theatre/screen/capacity |
 | 11 | Customer consistency | 0 customers with >1 name/gender/city |
 | 12 | Occupancy | 0 values outside 0–1 |
-| 13 | Revenue reconciliation | clean total = ₹10,787,567 (generator base) |
+| 13 | Revenue reconciliation | clean total = ₹10,823,192 (generator base) |
 | 14 | Raw file untouched | SHA256 unchanged before/after |
 
-### 7.1 Outcome (executed 2026-10-26)
+### 7.1 Outcome (executed 2026-11-11)
 
 `src/01_clean_data.py` and `notebooks/02_data_cleaning.ipynb` both produce
 `data/clean/bookings_clean.csv` (10,000 rows × 33 columns) and both pass all
@@ -468,28 +468,28 @@ removing the copy removes one instance of it.
 | Repair | Raw rows | After dedupe | Result |
 |---|---:|---:|---|
 | Duplicate bookings removed | 300 | — | 10,000 unique bookings |
-| Non-positive prices recovered | 52 | 50 | 0 failures; range ₹175–₹1,510 |
+| Non-positive prices recovered | 51 | 50 | 0 failures; range ₹170–₹1,500 |
 | Invalid show times repaired | 31 | 30 | 0 invalid |
-| Out-of-period dates repaired | 20 | 20 | 0 outside window |
+| Out-of-period dates repaired | 21 | 20 | 0 outside window |
 | Out-of-range ratings repaired | 10 | 10 | 0 outside 0–10 |
-| Impossible ages repaired | 10 | 10 | 0 outside 18–68; fallback unused |
+| Impossible ages repaired | 11 | 10 | 0 outside 18–68; fallback unused |
 | Missing emails filled | 62 | 60 | 0 blanks; 0 placeholders |
-| Missing phones filled | 61 | 60 | 0 blanks; 0 placeholders |
-| Missing `age_group` re-derived | 51 | 50 | 0 blanks; 0 conflicts |
-| Missing promos inferred | 50 | 50 | 15 real promos recovered, 35 set to `NONE` |
-| City labels normalised | 242 | 232 | 34 labels → 8 |
+| Missing phones filled | 60 | 60 | 0 blanks; 0 placeholders |
+| Missing `age_group` re-derived | 50 | 50 | 0 blanks; 0 conflicts |
+| Missing promos inferred | 51 | 50 | 14 real promos recovered, 36 set to `NONE` |
+| City labels normalised | 279 | 273 | 34 labels → 8 |
 
 Final reconciliation:
 
 | KPI | Value |
 |---|---:|
 | Rows × columns | 10,000 × 33 |
-| Confirmed bookings | 9,311 |
-| Confirmed tickets | 22,690 |
-| Confirmed revenue | **₹10,787,567** |
-| Cancellation rate | 6.89% |
-| Mean occupancy (per show) | 40.2% |
-| Raw file SHA256 | unchanged (`4130a03d…`) |
+| Confirmed bookings | 9,331 |
+| Confirmed tickets | 22,920 |
+| Confirmed revenue | **₹10,823,192** |
+| Cancellation rate | 6.69% |
+| Mean occupancy (per show) | 41.2% |
+| Raw file SHA256 | unchanged (`71c37b9b…`) |
 
 The raw file was not modified. The cleaned file is a new artifact, so the
 evidence used to justify every repair remains available.
@@ -499,11 +499,12 @@ evidence used to justify every repair remains available.
 ## 8. Limitations
 
 1. **Synthetic by design.** No result can be compared with a real cinema chain,
-   a real film's box office, or a real customer's behaviour.
+   a real film's box office, or a real customer's behaviour. Four recent release
+   names are used as labels only.
 2. **Sample, not census.** 10,000 bookings across 290 shows. Only shows with at
    least one sampled booking appear; occupancy is the occupancy of those shows.
-   The generator kept a random ~96% of each simulated show's bookings, so
-   measured occupancy (40.2%) is marginally below the designed base (40.9%).
+   The generator simulated complete shows and kept 10,000 bookings, so measured
+   occupancy (41.2%) is marginally below the aggregate base (42.1%).
 3. **City mix is illustrative.** City volumes come from a prior that roughly
    reflects multiplex market size, then are sampled. They are not a market
    estimate.

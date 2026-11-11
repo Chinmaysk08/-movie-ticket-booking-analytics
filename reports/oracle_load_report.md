@@ -1,6 +1,6 @@
 # Oracle Load Report — dataset v2
 
-Generated: 2026-10-26 16:05:21
+Generated: 2026-11-11 14:11:28
 Source: `data\clean\bookings_clean.csv`
 Schema: `sql/01_schema.sql` (Oracle 26ai Free, FREEPDB1)
 
@@ -12,8 +12,8 @@ if any check failed.
 
 | Table | Rows | Matches CSV |
 |---|---:|---|
-| `DIM_CUSTOMER` | 3,480 | ✅ |
-| `DIM_MOVIE` | 22 | ✅ |
+| `DIM_CUSTOMER` | 3,499 | ✅ |
+| `DIM_MOVIE` | 26 | ✅ |
 | `DIM_THEATRE` | 16 | ✅ |
 | `DIM_DATE` | 365 | ✅ |
 | `DIM_PAYMENT` | 18 | ✅ |
@@ -25,11 +25,11 @@ if any check failed.
 | KPI | Pandas (clean CSV) | Oracle | Match |
 |---|---:|---:|---|
 | `bookings` | 10,000 | 10,000 | ✅ |
-| `confirmed_bookings` | 9,311 | 9,311 | ✅ |
-| `confirmed_tickets` | 22,690 | 22,690 | ✅ |
-| `confirmed_revenue` | 10,787,567 | 10,787,567 | ✅ |
-| `cancellation_rate_pct` | 6.89 | 6.89 | ✅ |
-| `mean_occupancy_pct` | 40.18 | 40.18 | ✅ |
+| `confirmed_bookings` | 9,331 | 9,331 | ✅ |
+| `confirmed_tickets` | 22,920 | 22,920 | ✅ |
+| `confirmed_revenue` | 10,823,192 | 10,823,192 | ✅ |
+| `cancellation_rate_pct` | 6.69 | 6.69 | ✅ |
+| `mean_occupancy_pct` | 41.23 | 41.23 | ✅ |
 
 ## Integrity checks
 

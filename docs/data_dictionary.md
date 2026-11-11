@@ -41,9 +41,9 @@ deliberate duplicate rows), 31 columns.
 | 10 | `theatre_name` | text | `Orion Cinemas - Koramangala` | Multiplex name | Fictional; maps 1:1 to a city |
 | 11 | `screen` | text | `Screen 3` | Auditorium inside the multiplex | Screen 1 = IMAX, 2 = 3D, 3–5 = 2D |
 | 12 | `seats_capacity` | integer | `180` | Seats available in that screen | 100–340; the denominator for occupancy |
-| 13 | `movie_title` | text | `Dilli Nights` | Movie title | 22 fictional titles |
+| 13 | `movie_title` | text | `Dilli Nights` | Movie title | 26 titles: 22 fictional + 4 recent real-world release names used as labels |
 | 14 | `genre` | text | `Thriller` | Movie genre | 8 genres |
-| 15 | `language` | text | `Hindi` | Movie language | Hindi / Tamil / Telugu |
+| 15 | `language` | text | `Hindi` | Movie language | Hindi / Tamil / Telugu / Kannada |
 | 16 | `rating` | decimal | `8.1` | Movie rating out of 10 | A few out-of-range values injected |
 | 17 | `format` | text | `IMAX` | Projection format | 2D / 3D / IMAX; determined by screen |
 | 18 | `show_id` | text | `SH000042` | Show identifier | All bookings for the same show share it |
@@ -83,7 +83,7 @@ their inputs.
 | `gender` | Male, Female, Other |
 | `age_group` | 18-24, 25-34, 35-44, 45-54, 55+ |
 | `genre` | Action, Comedy, Drama, Horror-Comedy, Historical, Romance, Sci-Fi, Thriller |
-| `language` | Hindi, Tamil, Telugu |
+| `language` | Hindi, Tamil, Telugu, Kannada |
 | `format` | 2D, 3D, IMAX |
 | `ticket_type` | Standard, Premium, Recliner |
 | `promo_code` | NONE, WEEKEND10, STUDENT15, FIRSTBUY5, FAMILY20 |
@@ -109,18 +109,21 @@ their inputs.
 - **Sample, not a census.** 10,000 bookings is a sample. Only shows with at
   least one sampled booking appear, so occupancy describes those shows, not
   the full annual utilisation of each multiplex. The generator designs 16
-  multiplexes × 5 screens = 80 screens; the sample contains **79**, because
-  Screen 3 at Deccan Mall Cinemas - Baner has no sampled booking. This is a
-  property of the sample, not a claim that the multiplex has four screens.
+  multiplexes × 5 screens = 80 screens; the sample contains **76**, because
+  four screens have no sampled booking. This is a property of the sample, not
+  a claim that those multiplexes have fewer screens.
 - **Occupancy is slightly conservative.** The generator simulated 290 complete
-  shows and then randomly kept 10,000 of their ~10,400 bookings. Because a
-  show's unsampled seats are invisible, measured occupancy is marginally below
-  the designed occupancy (40.18% vs 40.9% in the generated base).
+  shows and then randomly kept 10,000 of their bookings. Because a show's
+  unsampled seats are invisible, measured occupancy is marginally below the
+  designed occupancy (41.23% mean per show vs 42.14% aggregate in the generated
+  base).
 - **Illustrative city mix.** City volumes are generated from a prior that
   roughly reflects multiplex market size, then sampled. They are not a market
   estimate.
-- **Fictional titles and venues.** No real film, cinema chain or person is
-  represented.
+- **Fictional data, real titles.** All figures are synthetic. Four recent
+  release names (KGF Chapter 2, Pushpa 2: The Rule, War 2, Animal) are used as
+  recognisable labels only; their booking volumes are simulated and say nothing
+  about real box-office performance. All venues and people are invented.
 - **Designed seasonality.** Monthly patterns (festival/summer peaks) are built
   into the generator, not observed from the real market.
 - **Ratings are static.** Each movie has one rating for the whole period; the

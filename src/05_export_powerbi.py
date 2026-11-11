@@ -33,6 +33,7 @@ RUN
     D:\\venvs\\cinema\\Scripts\\python.exe src\\05_export_powerbi.py
 """
 
+import json
 from datetime import datetime
 from pathlib import Path
 
@@ -120,8 +121,14 @@ def main() -> None:
 
     if len(fact) != 10_000:
         raise SystemExit(f"Expected 10,000 fact rows, exported {len(fact):,}.")
-    if revenue != 10_787_567:
-        raise SystemExit(f"Expected revenue INR 10,787,567, exported {revenue:,}.")
+
+    expected = json.loads((ROOT / "reports" / "generation_summary.json").read_text(encoding="utf-8"))
+    expected_revenue = int(expected["revenue_confirmed_inr"])
+    if revenue != expected_revenue:
+        raise SystemExit(
+            f"Expected revenue INR {expected_revenue:,}, exported {revenue:,}."
+        )
+    print(f"  revenue matches generator: INR {expected_revenue:,}")
 
     print()
     print("Export is consistent with the clean dataset.")

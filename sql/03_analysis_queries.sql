@@ -12,7 +12,7 @@
 --   seats / seats_capacity at the show level. Averaging it per booking would
 --   weight busy shows more heavily.
 -- * Every query that slices confirmed revenue should sum back to INR
---   10,787,567. src/04_run_sql_queries.py enforces that automatically.
+--   10,823,192. src/04_run_sql_queries.py enforces that automatically.
 --
 -- Run every query and capture the results:
 --     python src/04_run_sql_queries.py

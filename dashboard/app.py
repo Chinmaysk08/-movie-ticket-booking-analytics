@@ -218,7 +218,7 @@ with movies_tab:
     left, right = st.columns(2)
 
     with left:
-        st.subheader("Top 10 movies by revenue")
+        st.subheader("Top 10 movies by revenue (All Time)")
         top = (
             confirmed.groupby("movie_title", as_index=False)["total_amount"]
             .sum().nlargest(10, "total_amount")
@@ -242,6 +242,39 @@ with movies_tab:
         figure.update_traces(textposition="inside", textinfo="percent+label")
         st.plotly_chart(figure, width="stretch")
 
+    st.divider()
+    st.subheader("Recent Movies (Last 30 Days)")
+    max_date = confirmed["show_date"].max()
+    start_d = max_date - pd.Timedelta(days=30)
+    recent = confirmed[confirmed["show_date"] >= start_d]
+    recent_movies = (
+        recent.groupby("movie_title", as_index=False)
+        .agg(Revenue=("total_amount", "sum"),
+             Bookings=("booking_id", "count"),
+             Tickets=("seats", "sum"))
+        .sort_values("Revenue", ascending=False)
+    )
+    if recent_movies.empty:
+        st.info("No confirmed bookings in the last 30 days of the dataset.")
+    else:
+        col_table, col_chart = st.columns([1, 1])
+        with col_table:
+            st.caption(
+                f"Window: {start_d.strftime('%Y-%m-%d')} to "
+                f"{max_date.strftime('%Y-%m-%d')} (end of dataset, not today)"
+            )
+            st.dataframe(recent_movies, width="stretch", hide_index=True)
+        with col_chart:
+            figure = px.bar(
+                recent_movies.head(10), x="Revenue", y="movie_title", orientation="h",
+                labels={"Revenue": "Revenue (INR)", "movie_title": "Movie"},
+                template="plotly_white", color="Revenue",
+                color_continuous_scale="Blues",
+            )
+            figure.update_layout(yaxis={"categoryorder": "total ascending"})
+            st.plotly_chart(figure, width="stretch")
+
+    st.divider()
     left, right = st.columns(2)
 
     with left:
