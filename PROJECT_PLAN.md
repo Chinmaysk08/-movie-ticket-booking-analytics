@@ -313,7 +313,7 @@ explained. The README will state the choice and include a portability note.
 
 ### Phase 8 — Docs, Git, QA
 - [x] README rewritten with current totals and caveats
-- [x] `requirements.txt` pinned
+- [x] `requirements.txt` (runtime, tested) and `requirements-dev.txt` (notebooks) pinned
 - [x] `.gitignore` covers `.env`, logs, venv, notebook checkpoints, Power BI CSVs
 - [x] Structured commits; pushed to GitHub
 - [x] `docs/QA_CHECKLIST.md` with pass/fail evidence

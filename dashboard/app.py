@@ -2,11 +2,16 @@
 Movie Ticket Booking Analytics -- Streamlit dashboard (dataset v2)
 ===================================================================
 
-This is the runnable fallback for the Power BI report. It reads the Oracle star
-schema through two views:
+Runnable fallback for the Power BI report. It reads from the Oracle star
+schema when one is configured, and otherwise rebuilds the same two shapes from
+the committed clean CSV (`data/clean/bookings_clean.csv`):
 
     V_BOOKING_DETAIL     one row per booking, all dimensions joined
     V_SHOW_PERFORMANCE   one row per show, occupancy derived
+
+The CSV fallback is what makes the app deployable on Streamlit Community
+Cloud, which cannot reach a local Oracle instance and does not receive the
+git-ignored `.env`. Force it locally with `DASHBOARD_DATA_SOURCE=csv`.
 
 Run:
     $env:PYTHONPATH = "D:\\chinmay\\movie-ticket-booking-analytics\\src"
@@ -16,6 +21,7 @@ All data is synthetic. The dashboard demonstrates analytical method, not real
 cinema performance.
 """
 
+import os
 from pathlib import Path
 import sys
 
@@ -24,10 +30,23 @@ import plotly.express as px
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
+CLEAN_CSV = ROOT / "data" / "clean" / "bookings_clean.csv"
 sys.path.insert(0, str(ROOT / "src"))
-from db import get_conn  # noqa: E402
 
 DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+# Columns the dashboard expects, matching the Oracle view v_booking_detail.
+BOOKING_COLUMNS = [
+    "booking_id", "booking_datetime", "booking_status",
+    "customer_id", "customer_name", "gender", "age", "age_group",
+    "customer_city", "customer_type",
+    "movie_title", "genre", "language", "rating",
+    "theatre_name", "theatre_city", "show_id", "screen", "format",
+    "show_date", "show_time",
+    "payment_method", "booking_channel",
+    "ticket_type", "seats", "ticket_price", "convenience_fee",
+    "promo_code", "discount_amount", "total_amount",
+]
 
 st.set_page_config(
     page_title="Movie Ticket Booking Analytics",
@@ -36,8 +55,9 @@ st.set_page_config(
 )
 
 
-@st.cache_data(ttl=300)
-def load_bookings() -> pd.DataFrame:
+def _oracle_bookings() -> pd.DataFrame:
+    from db import get_conn
+
     query = """
         SELECT booking_id, booking_datetime, booking_status,
                customer_id, customer_name, gender, age, age_group,
@@ -65,8 +85,9 @@ def load_bookings() -> pd.DataFrame:
     return frame
 
 
-@st.cache_data(ttl=300)
-def load_shows() -> pd.DataFrame:
+def _oracle_shows() -> pd.DataFrame:
+    from db import get_conn
+
     query = """
         SELECT show_id, movie_title, genre, language, rating,
                theatre_name, city, screen, format, seats_capacity,
@@ -88,22 +109,111 @@ def load_shows() -> pd.DataFrame:
     return frame
 
 
+def _read_clean_csv() -> pd.DataFrame:
+    """
+    Read the committed CSV and add the two city aliases the app expects.
+
+    The CSV has one `city` column, which is the show's (theatre's) city. The
+    dashboard also exposes the customer's city; in this dataset a customer
+    always books in their home city, so the two are equal. Both names are kept
+    so the rest of the app is source-agnostic.
+    """
+    frame = pd.read_csv(CLEAN_CSV)
+    theatre_city = (
+        frame.groupby("theatre_name")["city"].agg(lambda values: values.mode().iat[0])
+    )
+    frame["customer_city"] = frame["city"]
+    frame["theatre_city"] = frame["theatre_name"].map(theatre_city)
+    frame["show_date"] = pd.to_datetime(frame["show_date"])
+    frame["booking_datetime"] = pd.to_datetime(frame["booking_datetime"])
+    return frame
+
+
+def _csv_bookings(frame: pd.DataFrame) -> pd.DataFrame:
+    """Trim the full CSV to the v_booking_detail column contract."""
+    return frame[BOOKING_COLUMNS]
+
+
+def _csv_shows(frame: pd.DataFrame) -> pd.DataFrame:
+    """Rebuild v_show_performance from booking rows (occupancy derived)."""
+    frame = frame.copy()
+    frame["_confirmed_seats"] = frame["seats"].where(
+        frame["booking_status"] == "Confirmed", 0
+    )
+    frame["_confirmed_revenue"] = frame["total_amount"].where(
+        frame["booking_status"] == "Confirmed", 0
+    )
+    shows = (
+        frame.groupby("show_id", as_index=False)
+        .agg(
+            movie_title=("movie_title", "first"),
+            genre=("genre", "first"),
+            language=("language", "first"),
+            rating=("rating", "first"),
+            theatre_name=("theatre_name", "first"),
+            city=("theatre_city", "first"),
+            screen=("screen", "first"),
+            format=("format", "first"),
+            seats_capacity=("seats_capacity", "first"),
+            show_date=("show_date", "first"),
+            show_time=("show_time", "first"),
+            bookings=("booking_id", "count"),
+            confirmed_seats=("_confirmed_seats", "sum"),
+            confirmed_revenue=("_confirmed_revenue", "sum"),
+        )
+    )
+    shows["occupancy_rate"] = (
+        shows["confirmed_seats"] / shows["seats_capacity"]
+    ).round(4)
+    return shows
+
+
+@st.cache_data(ttl=300, show_spinner="Loading booking data...")
+def load_data() -> tuple[pd.DataFrame, pd.DataFrame, str]:
+    """
+    Load bookings and shows from Oracle when configured, else the committed CSV.
+
+    Streamlit Community Cloud cannot reach a local Oracle instance and does not
+    receive the git-ignored `.env`, so the CSV path is the default there. Set
+    DASHBOARD_DATA_SOURCE=csv to force it locally too.
+    """
+    force = os.getenv("DASHBOARD_DATA_SOURCE", "").lower()
+    oracle_configured = bool(os.getenv("ORACLE_PASSWORD")) or (ROOT / ".env").exists()
+
+    if force != "csv" and oracle_configured:
+        try:
+            return _oracle_bookings(), _oracle_shows(), "Oracle 26ai Free (FREEPDB1)"
+        except Exception as error:  # noqa: BLE001
+            # Never blank the app because a database is down.
+            raw = _read_clean_csv()
+            note = f"committed CSV (Oracle unavailable: {type(error).__name__})"
+            return _csv_bookings(raw), _csv_shows(raw), note
+
+    raw = _read_clean_csv()
+    return (
+        _csv_bookings(raw),
+        _csv_shows(raw),
+        "committed CSV (data/clean/bookings_clean.csv)",
+    )
+
+
 def money(value: float) -> str:
     return f"₹{value:,.0f}"
 
 
 st.title("🎬 Movie Ticket Booking Analytics")
-st.caption(
-    "Oracle 26ai Free star schema · synthetic dataset v2 · 10,000 bookings, "
-    "290 shows, 8 cities"
-)
 
 try:
-    bookings = load_bookings()
-    shows = load_shows()
+    bookings, shows, data_source = load_data()
 except Exception as error:  # noqa: BLE001
-    st.error(f"Could not load data from Oracle: {error}")
+    st.error(f"Could not load data: {error}")
     st.stop()
+
+st.caption(
+    f"Source: {data_source} · synthetic dataset v2 · "
+    f"{len(bookings):,} bookings · {shows['show_id'].nunique()} shows · "
+    f"{bookings['theatre_city'].nunique()} cities"
+)
 
 # ---------------------------------------------------------------------------
 # Filters
@@ -433,6 +543,6 @@ with operations_tab:
 
 st.divider()
 st.caption(
-    "Source: Oracle 26ai Free (FREEPDB1) · views V_BOOKING_DETAIL and "
-    "V_SHOW_PERFORMANCE · all data synthetic."
+    f"Source: {data_source} · all data synthetic. Real movie titles are used "
+    "as labels only."
 )

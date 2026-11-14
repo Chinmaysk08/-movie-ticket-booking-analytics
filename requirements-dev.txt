@@ -1,0 +1,10 @@
+# Full development environment: runtime deps plus the notebook/EDA tooling.
+# Use this to run and re-execute the notebooks; use requirements.txt alone for
+# the dashboard or a Streamlit Cloud deployment.
+-r requirements.txt
+
+jupyter==1.1.1
+matplotlib==3.11.2
+seaborn==0.13.2
+openpyxl==3.1.5
+pyarrow==26.0.0

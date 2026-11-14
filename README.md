@@ -100,8 +100,11 @@ generator is the single source of truth and no total is hard-coded twice.
 ```bash
 python -m venv D:\venvs\cinema
 D:\venvs\cinema\Scripts\activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt   # runtime + notebook tooling
 ```
+
+Use `requirements.txt` alone for just the pipeline and dashboard; it is the
+file Streamlit Community Cloud installs.
 
 Oracle 26ai Free runs on `localhost:1521/FREEPDB1`; credentials live in `.env`
 (git-ignored, never committed).
@@ -117,9 +120,28 @@ cd D:\chinmay\movie-ticket-booking-analytics
 Manual start: `D:\venvs\cinema\Scripts\streamlit.exe run dashboard/app.py` →
 http://127.0.0.1:8501
 
+The dashboard reads Oracle when a `.env` is present and falls back to the
+committed `data/clean/bookings_clean.csv` otherwise. Force the CSV path with
+`DASHBOARD_DATA_SOURCE=csv`.
+
 The **Movies & Formats** tab shows both all-time leaders and a
 **Recent Movies (last 30 days)** table + chart, so late releases such as
 KGF Chapter 2, Pushpa 2 and War 2 are visible on their own.
+
+### Deploy to Streamlit Community Cloud
+
+1. Push this repo to GitHub.
+2. On [share.streamlit.io](https://share.streamlit.io), create an app from the
+   repo and set **Main file path** to `dashboard/app.py`.
+3. In **Advanced settings → Python version**, choose **3.12 or newer**
+   (the pinned numpy requires ≥ 3.12). `runtime.txt` requests 3.12.
+4. Leave secrets empty. The app detects that no Oracle `.env` is present and
+   reads the committed CSV, so it needs no database or credentials.
+5. `requirements.txt` pins the tested runtime versions; no other setup is
+   required.
+
+Because the data comes from a committed file, the deployed app is read-only
+and always matches the reconciled totals in this README.
 
 ## Data Generation Design
 

@@ -36,6 +36,8 @@ All checks for the Movie Ticket Booking Analytics project (Dataset v2). Run befo
 ## 5. Dashboard
 - [x] Streamlit app (`dashboard/app.py`) runs against v2 schema
 - [x] Headless AppTest passes with 0 exceptions
+- [x] CSV fallback (`DASHBOARD_DATA_SOURCE=csv`) passes with 0 exceptions and matches SQL KPIs
+- [x] Deployed mode needs no Oracle: reads committed `data/clean/bookings_clean.csv`
 - [x] Filters reconcile with SQL results
 - [x] "Recent Movies (last 30 days)" view added to the Movies & Formats tab
 - [x] Power BI `.pbix` created with 4 pages
